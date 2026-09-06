@@ -4,6 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Privacy Policy — Car Payment Truth Calculator",
   description: "How carpaymenttruth.com handles your data and uses advertising cookies.",
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPolicy() {

@@ -15,6 +15,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // Lets each page's `alternates.canonical` be a relative path ("/",
+  // "/privacy") and actually emits a canonical tag at all. Added
+  // proactively 2026-09-04 -- paycheckovertime.com's Search Console
+  // flagged "Duplicate without user-selected canonical" for the same
+  // www-vs-bare-domain reason this site also has.
+  metadataBase: new URL("https://carpaymenttruth.com"),
   title: "Car Payment Truth Calculator",
   description:
     "See the real cost of a car loan -- total interest, fees, and how loan term length changes what you actually pay, not just the monthly payment. Free, no sign-up.",
