@@ -24,6 +24,11 @@
 .DS_Store
 *.pem
 
+# Claude Code local dev-launch config -- contains a machine-specific
+# absolute path (this user's home directory), not meant to be tracked.
+# Same convention as the PayCheckCalculator sibling project.
+.claude/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
