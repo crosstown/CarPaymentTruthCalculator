@@ -65,8 +65,17 @@ export function calculateCarLoan(input: CarLoanInput): CarLoanResult {
 /** Common auto loan terms, for the side-by-side "same car, different term" comparison. */
 export const COMPARISON_TERMS_MONTHS = [36, 48, 60, 72, 84] as const;
 
-export function calculateTermComparison(input: CarLoanInput): TermComparisonRow[] {
-  return COMPARISON_TERMS_MONTHS.map((termMonths) => {
+/** Sane ceiling for a custom term -- 10 years covers every real-world auto
+ * loan (even unusually long ones go to 96mo) with headroom, while still
+ * keeping the amortization math and comparison table from being asked to
+ * render something nonsensical. */
+export const MAX_CUSTOM_TERM_MONTHS = 120;
+
+export function calculateTermComparison(
+  input: CarLoanInput,
+  terms: readonly number[] = COMPARISON_TERMS_MONTHS,
+): TermComparisonRow[] {
+  return terms.map((termMonths) => {
     const r = calculateCarLoan({ ...input, termMonths });
     return {
       termMonths,

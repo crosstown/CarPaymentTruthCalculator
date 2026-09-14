@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import {
   COMPARISON_TERMS_MONTHS,
+  MAX_CUSTOM_TERM_MONTHS,
   calculateCarLoan,
   calculateTermComparison,
 } from "@/lib/carLoan/calculate";
@@ -28,6 +29,10 @@ export default function Calculator() {
   const [tradeInValue, setTradeInValue] = useState("0");
   const [aprPercent, setAprPercent] = useState("7.5");
   const [termMonths, setTermMonths] = useState(60);
+  // Separate raw text for the custom-term field so a user can type "9" on
+  // the way to "96" without it snapping back to a preset mid-keystroke --
+  // termMonths itself only updates once the typed value actually parses.
+  const [customTermRaw, setCustomTermRaw] = useState("");
   const [salesTaxPercent, setSalesTaxPercent] = useState("7");
   const [fees, setFees] = useState("500");
   const [rollTaxAndFeesIntoLoan, setRollTaxAndFeesIntoLoan] = useState(true);
@@ -58,8 +63,36 @@ export default function Calculator() {
     ],
   );
 
+  const isPresetTerm = (COMPARISON_TERMS_MONTHS as readonly number[]).includes(termMonths);
+
+  // The comparison table always shows the standard terms, plus the current
+  // term if it's a custom (non-preset) value, sorted into place -- so a
+  // custom 42-month term shows up right between 36 and 48, not bolted on
+  // at the end or missing entirely.
+  const comparisonTerms = useMemo(() => {
+    const terms = new Set<number>(COMPARISON_TERMS_MONTHS);
+    terms.add(termMonths);
+    return Array.from(terms).sort((a, b) => a - b);
+  }, [termMonths]);
+
   const result = useMemo(() => calculateCarLoan(input), [input]);
-  const comparison = useMemo(() => calculateTermComparison(input), [input]);
+  const comparison = useMemo(
+    () => calculateTermComparison(input, comparisonTerms),
+    [input, comparisonTerms],
+  );
+
+  function selectPresetTerm(months: number) {
+    setTermMonths(months);
+    setCustomTermRaw("");
+  }
+
+  function handleCustomTermChange(raw: string) {
+    setCustomTermRaw(raw);
+    const n = parseInt(raw, 10);
+    if (!Number.isNaN(n) && n > 0) {
+      setTermMonths(Math.min(n, MAX_CUSTOM_TERM_MONTHS));
+    }
+  }
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-10">
@@ -185,12 +218,12 @@ export default function Calculator() {
 
         <div>
           <label className="block text-sm font-medium">Loan term</label>
-          <div className="mt-1 flex flex-wrap gap-2">
+          <div className="mt-1 flex flex-wrap items-center gap-2">
             {COMPARISON_TERMS_MONTHS.map((months) => (
               <button
                 key={months}
                 type="button"
-                onClick={() => setTermMonths(months)}
+                onClick={() => selectPresetTerm(months)}
                 className={`rounded-md border px-3 py-2 text-sm ${
                   termMonths === months
                     ? "border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-900"
@@ -200,7 +233,30 @@ export default function Calculator() {
                 {months} mo
               </button>
             ))}
+            <div
+              className={`flex items-center rounded-md border px-2 ${
+                !isPresetTerm
+                  ? "border-neutral-900 dark:border-neutral-100"
+                  : "border-neutral-300 dark:border-neutral-700"
+              }`}
+            >
+              <input
+                id="custom-term"
+                type="number"
+                min="1"
+                max={MAX_CUSTOM_TERM_MONTHS}
+                placeholder="Custom"
+                value={!isPresetTerm ? termMonths : customTermRaw}
+                onChange={(e) => handleCustomTermChange(e.target.value)}
+                className="w-16 bg-transparent py-2 text-center text-sm outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <span className="text-sm text-neutral-400">mo</span>
+            </div>
           </div>
+          <p className="mt-1 text-xs text-neutral-500">
+            Any term from 1 to {MAX_CUSTOM_TERM_MONTHS} months -- not every
+            lender offers every length, but the math works the same way.
+          </p>
         </div>
 
         <label className="flex items-center gap-2 text-sm">
@@ -277,7 +333,7 @@ export default function Calculator() {
         <p className="mt-1 text-sm text-neutral-500">
           A lower monthly payment from a longer loan almost always means
           paying more overall. Here&apos;s this exact loan at every common
-          term length.
+          term length{!isPresetTerm ? ", plus your custom term" : ""}.
         </p>
         <div className="mt-3 overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-800">
           <table className="w-full min-w-[480px] text-sm">
