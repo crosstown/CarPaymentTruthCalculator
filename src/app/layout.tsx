@@ -26,6 +26,17 @@ export const metadata: Metadata = {
     "See the real cost of a car loan -- total interest, fees, and how loan term length changes what you actually pay, not just the monthly payment. Free, no sign-up.",
 };
 
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Car Payment Truth Calculator",
+  applicationCategory: "FinanceApplication",
+  operatingSystem: "Any",
+  url: "https://carpaymenttruth.com/",
+  description:
+    "Estimate your real car payment, total interest, taxes, fees, insurance and true total cost. Compare 36, 48, 60, 72 and 84-month auto loans before you buy.",
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -41,13 +52,31 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5479758505355786"
           crossOrigin="anonymous"
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
       </head>
       <body className="min-h-full flex flex-col">
         <div className="flex-1">{children}</div>
         <footer className="border-t border-neutral-200 py-6 text-center text-xs text-neutral-500 dark:border-neutral-800">
-          <Link href="/privacy" className="hover:underline">
-            Privacy Policy
-          </Link>
+          <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <Link href="/about" className="hover:underline">
+              About
+            </Link>
+            <Link href="/methodology" className="hover:underline">
+              Methodology
+            </Link>
+            <Link href="/contact" className="hover:underline">
+              Contact
+            </Link>
+            <Link href="/disclaimer" className="hover:underline">
+              Disclaimer
+            </Link>
+            <Link href="/privacy" className="hover:underline">
+              Privacy Policy
+            </Link>
+          </nav>
           <VisitorCounter />
         </footer>
       </body>

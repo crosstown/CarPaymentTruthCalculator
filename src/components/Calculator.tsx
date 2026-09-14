@@ -218,9 +218,10 @@ export default function Calculator() {
           <label htmlFor="insurance" className="block text-sm font-medium">
             Monthly insurance estimate
             <span className="block text-xs font-normal text-neutral-500">
-              optional -- use your own quote for an accurate total; national
-              averages run roughly $190-$245/mo for full coverage as of
-              mid-2026, but vary enormously by driver
+              optional -- enter your own quote for an accurate total.
+              Insurance varies by state, driver, vehicle, coverage level,
+              credit profile, and insurer, so there&apos;s no honest
+              one-size-fits-all estimate to prefill here.
             </span>
           </label>
           <div className="mt-1 flex w-40 items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
