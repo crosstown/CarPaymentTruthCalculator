@@ -5,6 +5,7 @@ import {
   COMPARISON_TERMS_MONTHS,
   MAX_CUSTOM_TERM_MONTHS,
   calculateCarLoan,
+  calculateExtraPaymentImpact,
   calculateTermComparison,
 } from "@/lib/carLoan/calculate";
 
@@ -27,6 +28,7 @@ export default function Calculator() {
   const [vehiclePrice, setVehiclePrice] = useState("35000");
   const [downPayment, setDownPayment] = useState("3000");
   const [tradeInValue, setTradeInValue] = useState("0");
+  const [tradeInPayoff, setTradeInPayoff] = useState("0");
   const [aprPercent, setAprPercent] = useState("7.5");
   const [termMonths, setTermMonths] = useState(60);
   // Separate raw text for the custom-term field so a user can type "9" on
@@ -37,12 +39,14 @@ export default function Calculator() {
   const [fees, setFees] = useState("500");
   const [rollTaxAndFeesIntoLoan, setRollTaxAndFeesIntoLoan] = useState(true);
   const [monthlyInsuranceEstimate, setMonthlyInsuranceEstimate] = useState("");
+  const [extraPerMonth, setExtraPerMonth] = useState("");
 
   const input = useMemo(
     () => ({
       vehiclePrice: parseAmount(vehiclePrice),
       downPayment: parseAmount(downPayment),
       tradeInValue: parseAmount(tradeInValue),
+      tradeInPayoff: parseAmount(tradeInPayoff),
       aprPercent: parseAmount(aprPercent),
       termMonths,
       salesTaxPercent: parseAmount(salesTaxPercent),
@@ -54,6 +58,7 @@ export default function Calculator() {
       vehiclePrice,
       downPayment,
       tradeInValue,
+      tradeInPayoff,
       aprPercent,
       termMonths,
       salesTaxPercent,
@@ -79,6 +84,17 @@ export default function Calculator() {
   const comparison = useMemo(
     () => calculateTermComparison(input, comparisonTerms),
     [input, comparisonTerms],
+  );
+  const extraPaymentImpact = useMemo(
+    () =>
+      calculateExtraPaymentImpact(
+        result.amountFinanced,
+        input.aprPercent,
+        termMonths,
+        result.monthlyPayment,
+        parseAmount(extraPerMonth),
+      ),
+    [result.amountFinanced, input.aprPercent, termMonths, result.monthlyPayment, extraPerMonth],
   );
 
   function selectPresetTerm(months: number) {
@@ -153,6 +169,27 @@ export default function Calculator() {
                 step="100"
                 value={tradeInValue}
                 onChange={(e) => setTradeInValue(e.target.value)}
+                className="w-full bg-transparent py-2 pl-1 text-sm outline-none"
+              />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="trade-in-payoff" className="block text-sm font-medium">
+              Still owed on trade-in
+              <span className="block text-xs font-normal text-neutral-500">
+                optional -- if it&apos;s not paid off yet
+              </span>
+            </label>
+            <div className="mt-1 flex items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
+              <span className="text-neutral-400">$</span>
+              <input
+                id="trade-in-payoff"
+                type="number"
+                min="0"
+                step="100"
+                placeholder="0"
+                value={tradeInPayoff}
+                onChange={(e) => setTradeInPayoff(e.target.value)}
                 className="w-full bg-transparent py-2 pl-1 text-sm outline-none"
               />
             </div>
@@ -295,7 +332,24 @@ export default function Calculator() {
           </div>
         </div>
 
+        {result.negativeEquity > 0 && (
+          <p className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
+            You owe {currency.format(parseAmount(tradeInPayoff))} on your
+            trade-in but it&apos;s only worth {currency.format(parseAmount(tradeInValue))}
+            . That {currency.format(result.negativeEquity)} of negative
+            equity doesn&apos;t go away -- it&apos;s rolled into this loan,
+            so you&apos;re financing it (plus interest on it) along with the
+            new car.
+          </p>
+        )}
+
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 border-t border-neutral-200 pt-4 text-sm text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
+          {result.negativeEquity > 0 && (
+            <>
+              <span>Negative equity rolled in</span>
+              <span className="text-right">{currency.format(result.negativeEquity)}</span>
+            </>
+          )}
           <span>Amount financed</span>
           <span className="text-right">{currency.format(result.amountFinanced)}</span>
           <span>Due at signing</span>
@@ -366,12 +420,70 @@ export default function Calculator() {
         </div>
       </div>
 
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold tracking-tight">
+          Pay extra, save interest
+        </h2>
+        <p className="mt-1 text-sm text-neutral-500">
+          Auto loans are front-loaded with interest -- early payments are
+          mostly interest, later ones mostly principal. Extra dollars on top
+          of the required payment skip straight to principal, so they cut
+          interest you&apos;d otherwise pay later on a balance that&apos;s
+          now gone sooner.
+        </p>
+        <div className="mt-3 flex items-center gap-2">
+          <label htmlFor="extra-payment" className="text-sm font-medium">
+            Extra per month
+          </label>
+          <div className="flex w-32 items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
+            <span className="text-neutral-400">$</span>
+            <input
+              id="extra-payment"
+              type="number"
+              min="0"
+              step="10"
+              placeholder="0"
+              value={extraPerMonth}
+              onChange={(e) => setExtraPerMonth(e.target.value)}
+              className="w-full bg-transparent py-2 pl-1 text-sm outline-none"
+            />
+          </div>
+        </div>
+        {parseAmount(extraPerMonth) > 0 && (
+          <p className="mt-3 rounded-md bg-neutral-100 px-3 py-2 text-sm dark:bg-neutral-900">
+            {extraPaymentImpact.monthsSaved > 0 ? (
+              <>
+                Paying an extra {currency.format(parseAmount(extraPerMonth))}
+                /month pays this loan off{" "}
+                <strong>{extraPaymentImpact.monthsSaved} months early</strong>{" "}
+                (month {extraPaymentImpact.monthsToPayoff} instead of{" "}
+                {extraPaymentImpact.baselineMonths}) and saves{" "}
+                <strong>{currency.format(extraPaymentImpact.interestSaved)}</strong>{" "}
+                in interest.
+              </>
+            ) : (
+              "That extra amount doesn't shorten the loan (it may exceed the remaining balance almost immediately, or the loan is already interest-free)."
+            )}
+          </p>
+        )}
+      </div>
+
       <ul className="mt-6 list-inside list-disc space-y-1 text-xs text-neutral-500">
         <li>
           Sales tax assumes the common case where trade-in value reduces the
           taxable amount -- a few states (notably California) tax the full
           vehicle price regardless of trade-in, so this may overstate tax
           there.
+        </li>
+        <li>
+          Negative equity from a trade-in loan is assumed to always be
+          rolled into the new loan (the common case) rather than paid in
+          cash at signing.
+        </li>
+        <li>
+          The extra-payment payoff estimate assumes every extra dollar goes
+          to principal each month, consistently, for the life of the loan --
+          real-world lenders and payment habits vary.
         </li>
         <li>
           Monthly payment uses standard fixed-rate amortization on the

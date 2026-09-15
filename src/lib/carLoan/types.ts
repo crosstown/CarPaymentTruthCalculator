@@ -4,6 +4,8 @@ export interface CarLoanInput {
   downPayment: number;
   /** Value of a trade-in vehicle, if any. Reduces the amount financed and (in most states) the taxable amount. */
   tradeInValue: number;
+  /** Amount still owed on a loan against the trade-in, if any. When this exceeds the trade-in's value, the gap ("negative equity") doesn't disappear -- it gets rolled into the new loan, so you're financing a car you don't own yet plus a car you already gave back. Defaults to 0 (trade-in is paid off, or there's no trade-in). */
+  tradeInPayoff: number;
   /** Annual percentage rate, e.g. 6.9 for 6.9%. */
   aprPercent: number;
   termMonths: number;
@@ -20,6 +22,8 @@ export interface CarLoanInput {
 export interface CarLoanResult {
   taxableAmount: number;
   salesTax: number;
+  /** Negative equity rolled over from an underwater trade-in loan (payoff exceeding trade-in value), already included in amountFinanced. Zero when there's no trade-in loan or it isn't underwater. */
+  negativeEquity: number;
   /** Principal actually financed by the loan. */
   amountFinanced: number;
   /** Cash due at signing -- the down payment, plus tax/fees if not rolled into the loan. */

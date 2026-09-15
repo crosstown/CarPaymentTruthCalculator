@@ -18,6 +18,7 @@ function amortizedPayment(principal: number, monthlyRate: number, termMonths: nu
 export function calculateCarLoan(input: CarLoanInput): CarLoanResult {
   const price = Math.max(0, input.vehiclePrice);
   const tradeIn = Math.max(0, input.tradeInValue);
+  const tradeInPayoff = Math.max(0, input.tradeInPayoff);
   const down = Math.max(0, input.downPayment);
   const taxRate = Math.max(0, input.salesTaxPercent) / 100;
   const apr = Math.max(0, input.aprPercent) / 100;
@@ -31,13 +32,21 @@ export function calculateCarLoan(input: CarLoanInput): CarLoanResult {
   const taxableAmount = round2(Math.max(0, price - tradeIn));
   const salesTax = round2(taxableAmount * taxRate);
 
+  // Owing more on the trade-in than it's worth doesn't reduce what you
+  // finance -- it increases it. That gap gets tacked onto the new loan
+  // regardless of whether tax/fees are rolled in, because unlike tax and
+  // fees there's no "pay it at signing instead" option most buyers have.
+  const negativeEquity = round2(Math.max(0, tradeInPayoff - tradeIn));
+
   const priceAfterTradeAndDown = Math.max(0, round2(price - tradeIn - down));
 
   const amountFinanced = Math.max(
     0,
-    input.rollTaxAndFeesIntoLoan
-      ? round2(priceAfterTradeAndDown + salesTax + fees)
-      : priceAfterTradeAndDown,
+    round2(
+      (input.rollTaxAndFeesIntoLoan
+        ? priceAfterTradeAndDown + salesTax + fees
+        : priceAfterTradeAndDown) + negativeEquity,
+    ),
   );
   const dueAtSigning = input.rollTaxAndFeesIntoLoan
     ? round2(down)
@@ -52,6 +61,7 @@ export function calculateCarLoan(input: CarLoanInput): CarLoanResult {
   return {
     taxableAmount,
     salesTax,
+    negativeEquity,
     amountFinanced,
     dueAtSigning,
     monthlyPayment,
@@ -85,4 +95,104 @@ export function calculateTermComparison(
       trueTotalCost: r.trueTotalCost,
     };
   });
+}
+
+/**
+ * Simulates paying down a fixed-rate loan one month at a time at a given
+ * payment amount, so we can answer "what if you paid more than the required
+ * payment?" -- a question the closed-form amortization formula can't answer
+ * directly, since it assumes the payment is whatever keeps the loan exactly
+ * at term. Stops the moment the balance hits zero (paying off early), or at
+ * maxMonths as a backstop against an infinite loop if payment doesn't even
+ * cover the interest accruing each month.
+ */
+function simulatePayoff(
+  principal: number,
+  monthlyRate: number,
+  payment: number,
+  maxMonths: number,
+): { months: number; totalInterest: number } {
+  if (principal <= 0) return { months: 0, totalInterest: 0 };
+  if (payment <= 0) return { months: maxMonths, totalInterest: 0 };
+
+  let balance = principal;
+  let totalInterest = 0;
+  let months = 0;
+
+  while (balance > 0.005 && months < maxMonths) {
+    const interestThisMonth = balance * monthlyRate;
+    const principalPaid = Math.min(payment - interestThisMonth, balance);
+    if (principalPaid <= 0) {
+      // Payment doesn't even cover accruing interest -- balance never
+      // shrinks. Bail out rather than loop until maxMonths for nothing.
+      months = maxMonths;
+      break;
+    }
+    balance -= principalPaid;
+    totalInterest += interestThisMonth;
+    months += 1;
+  }
+
+  return { months, totalInterest: round2(totalInterest) };
+}
+
+export interface ExtraPaymentImpact {
+  /** Months to pay off the loan at the standard required payment, no extra. */
+  baselineMonths: number;
+  /** Months to pay off the loan once the extra monthly amount is added. */
+  monthsToPayoff: number;
+  /** baselineMonths - monthsToPayoff, i.e. how much sooner the car is paid off. */
+  monthsSaved: number;
+  /** Total interest paid over the life of the loan with the extra payment applied. */
+  totalInterest: number;
+  /** How much less interest is paid, vs. the standard payment schedule. */
+  interestSaved: number;
+}
+
+/**
+ * Models paying more than the required monthly payment: since a fixed-rate
+ * loan is front-loaded with interest, extra dollars applied on top of the
+ * required payment go straight to principal, shortening the loan and
+ * cutting the interest that would have accrued on the balance that's now
+ * gone sooner. Comparing a simulated payoff at the standard payment against
+ * one at (payment + extra) turns that into concrete months and dollars.
+ */
+export function calculateExtraPaymentImpact(
+  amountFinanced: number,
+  aprPercent: number,
+  termMonths: number,
+  monthlyPayment: number,
+  extraPerMonth: number,
+): ExtraPaymentImpact {
+  const monthlyRate = Math.max(0, aprPercent) / 100 / 12;
+  // A generous backstop above the loan's own term -- paying extra can only
+  // pay it off sooner, but the baseline run (extra=0) needs enough room to
+  // reach its natural payoff even with rounding on the last payment.
+  const maxMonths = termMonths + 2;
+
+  const baseline = simulatePayoff(amountFinanced, monthlyRate, monthlyPayment, maxMonths);
+  if (extraPerMonth <= 0) {
+    return {
+      baselineMonths: baseline.months,
+      monthsToPayoff: baseline.months,
+      monthsSaved: 0,
+      totalInterest: baseline.totalInterest,
+      interestSaved: 0,
+    };
+  }
+
+  const withExtra = simulatePayoff(
+    amountFinanced,
+    monthlyRate,
+    monthlyPayment + extraPerMonth,
+    maxMonths,
+  );
+
+  return {
+    baselineMonths: baseline.months,
+    monthsToPayoff: withExtra.months,
+    monthsSaved: Math.max(0, baseline.months - withExtra.months),
+    totalInterest: withExtra.totalInterest,
+    interestSaved: round2(Math.max(0, baseline.totalInterest - withExtra.totalInterest)),
+  };
 }
