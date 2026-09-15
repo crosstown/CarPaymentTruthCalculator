@@ -4,10 +4,14 @@ import { useMemo, useState } from "react";
 import {
   COMPARISON_TERMS_MONTHS,
   MAX_CUSTOM_TERM_MONTHS,
+  calculateAffordabilityComparison,
+  calculateAffordablePrice,
   calculateCarLoan,
   calculateExtraPaymentImpact,
   calculateTermComparison,
 } from "@/lib/carLoan/calculate";
+
+type Mode = "price" | "budget";
 
 const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -25,6 +29,8 @@ const parseAmount = (raw: string): number => {
 };
 
 export default function Calculator() {
+  const [mode, setMode] = useState<Mode>("price");
+  const [monthlyBudget, setMonthlyBudget] = useState("500");
   const [vehiclePrice, setVehiclePrice] = useState("35000");
   const [downPayment, setDownPayment] = useState("3000");
   const [tradeInValue, setTradeInValue] = useState("0");
@@ -80,10 +86,49 @@ export default function Calculator() {
     return Array.from(terms).sort((a, b) => a - b);
   }, [termMonths]);
 
-  const result = useMemo(() => calculateCarLoan(input), [input]);
+  // Budget mode solves the calculation backwards: instead of a vehicle
+  // price plugged in directly, the price itself is derived from what
+  // monthly payment the budget allows. `effectiveInput` is what every
+  // downstream calculation (breakdown, comparison table, extra-payment
+  // tool) actually runs on, so the rest of this component doesn't need to
+  // know which direction the numbers came from.
+  const affordability = useMemo(
+    () => calculateAffordablePrice(parseAmount(monthlyBudget), input),
+    [monthlyBudget, input],
+  );
+  const effectiveInput = useMemo(
+    () => (mode === "budget" ? { ...input, vehiclePrice: affordability.vehiclePrice } : input),
+    [mode, input, affordability.vehiclePrice],
+  );
+
+  const result = useMemo(() => calculateCarLoan(effectiveInput), [effectiveInput]);
   const comparison = useMemo(
-    () => calculateTermComparison(input, comparisonTerms),
-    [input, comparisonTerms],
+    () => calculateTermComparison(effectiveInput, comparisonTerms),
+    [effectiveInput, comparisonTerms],
+  );
+  const affordabilityComparison = useMemo(
+    () => calculateAffordabilityComparison(parseAmount(monthlyBudget), input, comparisonTerms),
+    [monthlyBudget, input, comparisonTerms],
+  );
+  // Normalize the two comparison shapes (price-mode rows carry a monthly
+  // payment; budget-mode rows carry a derived price) into one shape so the
+  // table below doesn't need to know which mode produced its data.
+  const comparisonRows = useMemo(
+    () =>
+      mode === "budget"
+        ? affordabilityComparison.map((row) => ({
+            termMonths: row.termMonths,
+            primary: currencyWhole.format(row.vehiclePrice),
+            totalInterest: row.totalInterest,
+            trueTotalCost: row.trueTotalCost,
+          }))
+        : comparison.map((row) => ({
+            termMonths: row.termMonths,
+            primary: currency.format(row.monthlyPayment),
+            totalInterest: row.totalInterest,
+            trueTotalCost: row.trueTotalCost,
+          })),
+    [mode, affordabilityComparison, comparison],
   );
   const extraPaymentImpact = useMemo(
     () =>
@@ -121,24 +166,80 @@ export default function Calculator() {
       </p>
 
       <div className="mt-8 space-y-6 rounded-xl border border-neutral-200 p-6 dark:border-neutral-800">
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label htmlFor="vehicle-price" className="block text-sm font-medium">
-              Vehicle price
-            </label>
-            <div className="mt-1 flex items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
-              <span className="text-neutral-400">$</span>
-              <input
-                id="vehicle-price"
-                type="number"
-                min="0"
-                step="100"
-                value={vehiclePrice}
-                onChange={(e) => setVehiclePrice(e.target.value)}
-                className="w-full bg-transparent py-2 pl-1 text-sm outline-none"
-              />
-            </div>
+        <div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setMode("price")}
+              className={`rounded-md border px-3 py-2 text-sm ${
+                mode === "price"
+                  ? "border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-900"
+                  : "border-neutral-300 dark:border-neutral-700"
+              }`}
+            >
+              I know the price
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("budget")}
+              className={`rounded-md border px-3 py-2 text-sm ${
+                mode === "budget"
+                  ? "border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-900"
+                  : "border-neutral-300 dark:border-neutral-700"
+              }`}
+            >
+              I know my budget
+            </button>
           </div>
+          <p className="mt-1 text-xs text-neutral-500">
+            {mode === "price"
+              ? "Enter a price below to see the real monthly payment and total cost."
+              : "Enter what you can pay per month below to see the price of car that actually fits."}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          {mode === "price" ? (
+            <div>
+              <label htmlFor="vehicle-price" className="block text-sm font-medium">
+                Vehicle price
+              </label>
+              <div className="mt-1 flex items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
+                <span className="text-neutral-400">$</span>
+                <input
+                  id="vehicle-price"
+                  type="number"
+                  min="0"
+                  step="100"
+                  value={vehiclePrice}
+                  onChange={(e) => setVehiclePrice(e.target.value)}
+                  className="w-full bg-transparent py-2 pl-1 text-sm outline-none"
+                />
+              </div>
+            </div>
+          ) : (
+            <div>
+              <label htmlFor="monthly-budget" className="block text-sm font-medium">
+                Monthly budget
+                <span className="block text-xs font-normal text-neutral-500">
+                  total you can pay per month
+                  {parseAmount(monthlyInsuranceEstimate) > 0 ? ", insurance included" : ""}
+                </span>
+              </label>
+              <div className="mt-1 flex items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
+                <span className="text-neutral-400">$</span>
+                <input
+                  id="monthly-budget"
+                  type="number"
+                  min="0"
+                  step="10"
+                  value={monthlyBudget}
+                  onChange={(e) => setMonthlyBudget(e.target.value)}
+                  className="w-full bg-transparent py-2 pl-1 text-sm outline-none"
+                />
+              </div>
+            </div>
+          )}
           <div>
             <label htmlFor="down-payment" className="block text-sm font-medium">
               Down payment
@@ -344,6 +445,12 @@ export default function Calculator() {
         )}
 
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 border-t border-neutral-200 pt-4 text-sm text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
+          {mode === "budget" && (
+            <>
+              <span>Monthly payment</span>
+              <span className="text-right">{currency.format(result.monthlyPayment)}</span>
+            </>
+          )}
           {result.negativeEquity > 0 && (
             <>
               <span>Negative equity rolled in</span>
@@ -366,9 +473,13 @@ export default function Calculator() {
 
         <div className="grid grid-cols-2 gap-3 border-t border-neutral-200 pt-4 dark:border-neutral-800">
           <div className="rounded-lg bg-neutral-100 p-4 dark:bg-neutral-900">
-            <p className="text-xs text-neutral-500">Monthly payment</p>
+            <p className="text-xs text-neutral-500">
+              {mode === "budget" ? "Vehicle price you can afford" : "Monthly payment"}
+            </p>
             <p className="text-2xl font-semibold tracking-tight">
-              {currency.format(result.monthlyPayment)}
+              {mode === "budget"
+                ? currency.format(affordability.vehiclePrice)
+                : currency.format(result.monthlyPayment)}
             </p>
           </div>
           <div className="rounded-lg bg-neutral-100 p-4 dark:bg-neutral-900">
@@ -382,25 +493,27 @@ export default function Calculator() {
 
       <div className="mt-8">
         <h2 className="text-lg font-semibold tracking-tight">
-          Same car, different term
+          {mode === "budget" ? "Same budget, different term" : "Same car, different term"}
         </h2>
         <p className="mt-1 text-sm text-neutral-500">
-          A lower monthly payment from a longer loan almost always means
-          paying more overall. Here&apos;s this exact loan at every common
-          term length{!isPresetTerm ? ", plus your custom term" : ""}.
+          {mode === "budget"
+            ? "A longer term doesn't just lower the payment on a given car -- it raises the price of car your budget can reach in the first place. Here's what this exact budget affords at every common term length."
+            : `A lower monthly payment from a longer loan almost always means paying more overall. Here's this exact loan at every common term length${!isPresetTerm ? ", plus your custom term" : ""}.`}
         </p>
         <div className="mt-3 overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-800">
           <table className="w-full min-w-[480px] text-sm">
             <thead>
               <tr className="border-b border-neutral-200 text-left text-xs text-neutral-500 dark:border-neutral-800">
                 <th className="px-4 py-2 font-medium">Term</th>
-                <th className="px-4 py-2 font-medium">Monthly</th>
+                <th className="px-4 py-2 font-medium">
+                  {mode === "budget" ? "Price you can afford" : "Monthly"}
+                </th>
                 <th className="px-4 py-2 font-medium">Total interest</th>
                 <th className="px-4 py-2 font-medium">True total cost</th>
               </tr>
             </thead>
             <tbody>
-              {comparison.map((row) => (
+              {comparisonRows.map((row) => (
                 <tr
                   key={row.termMonths}
                   className={`border-b border-neutral-100 last:border-0 dark:border-neutral-900 ${
@@ -410,7 +523,7 @@ export default function Calculator() {
                   }`}
                 >
                   <td className="px-4 py-2 font-medium">{row.termMonths} mo</td>
-                  <td className="px-4 py-2">{currency.format(row.monthlyPayment)}</td>
+                  <td className="px-4 py-2">{row.primary}</td>
                   <td className="px-4 py-2">{currencyWhole.format(row.totalInterest)}</td>
                   <td className="px-4 py-2">{currencyWhole.format(row.trueTotalCost)}</td>
                 </tr>
@@ -469,6 +582,12 @@ export default function Calculator() {
       </div>
 
       <ul className="mt-6 list-inside list-disc space-y-1 text-xs text-neutral-500">
+        <li>
+          &quot;I know my budget&quot; mode treats your monthly insurance
+          estimate as part of that budget (if you&apos;ve entered one), then
+          finds the highest vehicle price whose loan payment still fits what&apos;s
+          left.
+        </li>
         <li>
           Sales tax assumes the common case where trade-in value reduces the
           taxable amount -- a few states (notably California) tax the full

@@ -196,3 +196,93 @@ export function calculateExtraPaymentImpact(
     interestSaved: round2(Math.max(0, baseline.totalInterest - withExtra.totalInterest)),
   };
 }
+
+export interface AffordablePriceResult {
+  /** The highest vehicle price whose monthly loan payment fits the budget. */
+  vehiclePrice: number;
+  /** The full breakdown at that price -- same shape the price-first mode shows. */
+  result: CarLoanResult;
+}
+
+/**
+ * Solves the calculator backwards: given a monthly budget instead of a
+ * price, find the vehicle price that fits it. Rather than re-deriving a
+ * second, "inverted" version of the tax/negative-equity/roll-in rules
+ * baked into calculateCarLoan (which would drift out of sync the next time
+ * those rules change), this just binary-searches vehiclePrice through the
+ * real forward calculation until its monthlyPayment matches the budget.
+ * Monthly payment is monotonically non-decreasing in price with everything
+ * else held fixed, so the search converges cleanly.
+ */
+export function calculateAffordablePrice(
+  monthlyBudget: number,
+  input: CarLoanInput,
+): AffordablePriceResult {
+  // If insurance is part of the budget, it comes off the top -- someone
+  // budgeting "$500/month all-in" can afford a smaller loan payment than
+  // someone budgeting "$500/month for the loan alone."
+  const loanBudget = Math.max(
+    0,
+    Math.max(0, monthlyBudget) - Math.max(0, input.monthlyInsuranceEstimate),
+  );
+
+  const paymentAtPrice = (vehiclePrice: number) =>
+    calculateCarLoan({ ...input, vehiclePrice }).monthlyPayment;
+
+  if (loanBudget <= 0) {
+    const vehiclePrice = 0;
+    return { vehiclePrice, result: calculateCarLoan({ ...input, vehiclePrice }) };
+  }
+
+  let lo = 0;
+  let hi = 1000;
+  while (paymentAtPrice(hi) < loanBudget && hi < 10_000_000) {
+    hi *= 2;
+  }
+
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2;
+    if (paymentAtPrice(mid) > loanBudget) {
+      hi = mid;
+    } else {
+      lo = mid;
+    }
+  }
+
+  const vehiclePrice = round2(lo);
+  return { vehiclePrice, result: calculateCarLoan({ ...input, vehiclePrice }) };
+}
+
+export interface AffordabilityComparisonRow {
+  termMonths: number;
+  /** The vehicle price this budget affords at this term -- the thing that varies here, since the budget itself is fixed. */
+  vehiclePrice: number;
+  totalInterest: number;
+  trueTotalCost: number;
+}
+
+/**
+ * The budget-mode counterpart to calculateTermComparison: instead of asking
+ * "same price, what does a longer term cost?", this holds the monthly
+ * budget fixed and asks "how much more car does a longer term afford?" --
+ * a longer term doesn't just lower the payment on a given car, it raises
+ * the price of car a fixed budget can reach in the first place.
+ */
+export function calculateAffordabilityComparison(
+  monthlyBudget: number,
+  input: CarLoanInput,
+  terms: readonly number[] = COMPARISON_TERMS_MONTHS,
+): AffordabilityComparisonRow[] {
+  return terms.map((termMonths) => {
+    const { vehiclePrice, result } = calculateAffordablePrice(monthlyBudget, {
+      ...input,
+      termMonths,
+    });
+    return {
+      termMonths,
+      vehiclePrice,
+      totalInterest: result.totalInterest,
+      trueTotalCost: result.trueTotalCost,
+    };
+  });
+}
