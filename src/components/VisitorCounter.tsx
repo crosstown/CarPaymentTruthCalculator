@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { Locale } from "./Calculator";
 
 /**
  * Total page views, tracked server-side in DynamoDB via a small
@@ -14,7 +15,7 @@ import { useEffect, useState } from "react";
  */
 const COUNTER_URL = "https://2vx4ejvk4ffruv45ns746k6w2a0piezu.lambda-url.us-east-1.on.aws/";
 
-export default function VisitorCounter() {
+export default function VisitorCounter({ locale = "en" }: { locale?: Locale }) {
   const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export default function VisitorCounter() {
   return (
     <>
       <span className="mx-2">·</span>
-      <span>{count.toLocaleString()} page views</span>
+      <span>{count.toLocaleString()} {locale === "es" ? "visitas" : "page views"}</span>
     </>
   );
 }

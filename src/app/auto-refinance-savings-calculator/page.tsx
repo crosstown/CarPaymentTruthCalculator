@@ -6,7 +6,13 @@ export const metadata: Metadata = {
   title: "Auto Refinance Savings Calculator | Should You Refinance Your Car Loan?",
   description:
     "See your real monthly savings, total interest saved, and break-even point if you refinance your car loan -- compare your current loan against a new offer.",
-  alternates: { canonical: "/auto-refinance-savings-calculator" },
+  alternates: {
+    canonical: "/auto-refinance-savings-calculator",
+    languages: {
+      "en-US": "https://carpaymenttruth.com/auto-refinance-savings-calculator",
+      es: "https://carpaymenttruth.com/es/auto-refinance-savings-calculator",
+    },
+  },
 };
 
 const BREADCRUMB_JSON_LD = {

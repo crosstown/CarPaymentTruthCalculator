@@ -12,6 +12,7 @@ import {
 } from "@/lib/carLoan/calculate";
 
 type Mode = "price" | "budget";
+export type Locale = "en" | "es";
 
 const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -28,7 +29,149 @@ const parseAmount = (raw: string): number => {
   return Number.isNaN(n) || n < 0 ? 0 : n;
 };
 
-export default function Calculator() {
+const STRINGS = {
+  en: {
+    title: "Car Payment Truth Calculator",
+    subtitle:
+      "The monthly payment isn't the price of the car. See the real total -- interest, fees, and what a longer loan term actually costs.",
+    modePrice: "I know the price",
+    modeBudget: "I know my budget",
+    modePriceHint: "Enter a price below to see the real monthly payment and total cost.",
+    modeBudgetHint: "Enter what you can pay per month below to see the price of car that actually fits.",
+    vehiclePrice: "Vehicle price",
+    monthlyBudget: "Monthly budget",
+    monthlyBudgetHint: "total you can pay per month",
+    monthlyBudgetInsuranceSuffix: ", insurance included",
+    downPayment: "Down payment",
+    tradeIn: "Trade-in value",
+    tradeInPayoff: "Still owed on trade-in",
+    tradeInPayoffHint: "optional -- if it's not paid off yet",
+    apr: "Interest rate (APR)",
+    salesTax: "Sales tax rate",
+    salesTaxHint: "your combined state + local rate",
+    fees: "Fees",
+    feesHint: "doc, registration, dealer fees",
+    loanTerm: "Loan term",
+    customTermPlaceholder: "Custom",
+    moSuffix: "mo",
+    termHint: (max: number) =>
+      `Any term from 1 to ${max} months -- not every lender offers every length, but the math works the same way.`,
+    rollTaxAndFees: "Roll tax & fees into the loan",
+    rollTaxAndFeesHint: "(unchecked = pay them at signing)",
+    insurance: "Monthly insurance estimate",
+    insuranceHint:
+      "optional -- enter your own quote for an accurate total. Insurance varies by state, driver, vehicle, coverage level, credit profile, and insurer, so there's no honest one-size-fits-all estimate to prefill here.",
+    negativeEquityWarning: (owed: string, worth: string, gap: string) =>
+      `You owe ${owed} on your trade-in but it's only worth ${worth}. That ${gap} of negative equity doesn't go away -- it's rolled into this loan, so you're financing it (plus interest on it) along with the new car.`,
+    monthlyPayment: "Monthly payment",
+    negativeEquityRolledIn: "Negative equity rolled in",
+    amountFinanced: "Amount financed",
+    dueAtSigning: "Due at signing",
+    totalInterest: "Total interest",
+    insuranceOver: (term: number) => `Insurance over ${term} mo`,
+    vehiclePriceAfford: "Vehicle price you can afford",
+    trueTotalCost: "True total cost",
+    comparisonTitleBudget: "Same budget, different term",
+    comparisonTitlePrice: "Same car, different term",
+    comparisonSubtitleBudget:
+      "A longer term doesn't just lower the payment on a given car -- it raises the price of car your budget can reach in the first place. Here's what this exact budget affords at every common term length.",
+    comparisonSubtitlePrice: (customSuffix: string) =>
+      `A lower monthly payment from a longer loan almost always means paying more overall. Here's this exact loan at every common term length${customSuffix}.`,
+    comparisonSubtitleCustomSuffix: ", plus your custom term",
+    term: "Term",
+    priceAfford: "Price you can afford",
+    monthly: "Monthly",
+    payExtraTitle: "Pay extra, save interest",
+    payExtraSubtitle:
+      "Auto loans are front-loaded with interest -- early payments are mostly interest, later ones mostly principal. Extra dollars on top of the required payment skip straight to principal, so they cut interest you'd otherwise pay later on a balance that's now gone sooner.",
+    extraPerMonth: "Extra per month",
+    extraPaymentResult: (extra: string, months: number, newMonth: number, oldMonth: number, saved: string) =>
+      `Paying an extra ${extra}/month pays this loan off ${months} months early (month ${newMonth} instead of ${oldMonth}) and saves ${saved} in interest.`,
+    extraPaymentNoEffect:
+      "That extra amount doesn't shorten the loan (it may exceed the remaining balance almost immediately, or the loan is already interest-free).",
+    footnotes: [
+      "\"I know my budget\" mode treats your monthly insurance estimate as part of that budget (if you've entered one), then finds the highest vehicle price whose loan payment still fits what's left.",
+      "Sales tax assumes the common case where trade-in value reduces the taxable amount -- a few states (notably California) tax the full vehicle price regardless of trade-in, so this may overstate tax there.",
+      "Negative equity from a trade-in loan is assumed to always be rolled into the new loan (the common case) rather than paid in cash at signing.",
+      "The extra-payment payoff estimate assumes every extra dollar goes to principal each month, consistently, for the life of the loan -- real-world lenders and payment habits vary.",
+      "Monthly payment uses standard fixed-rate amortization on the amount financed; it doesn't model a variable-rate loan, balloon payment, or lease.",
+      "The insurance estimate is only ever what you enter -- there's no way to generate a personalized quote from these inputs alone.",
+      "This is an estimate for general informational purposes, not financial advice.",
+    ],
+  },
+  es: {
+    title: "Calculadora de la Verdad del Pago del Auto",
+    subtitle:
+      "El pago mensual no es el precio del auto. Mira el costo real -- intereses, cargos, y lo que realmente cuesta un plazo de préstamo más largo.",
+    modePrice: "Sé el precio",
+    modeBudget: "Sé mi presupuesto",
+    modePriceHint: "Ingresa un precio abajo para ver el pago mensual real y el costo total.",
+    modeBudgetHint: "Ingresa cuánto puedes pagar al mes para ver el precio de auto que realmente te alcanza.",
+    vehiclePrice: "Precio del vehículo",
+    monthlyBudget: "Presupuesto mensual",
+    monthlyBudgetHint: "total que puedes pagar al mes",
+    monthlyBudgetInsuranceSuffix: ", seguro incluido",
+    downPayment: "Enganche",
+    tradeIn: "Valor del auto a cambio",
+    tradeInPayoff: "Saldo pendiente del auto a cambio",
+    tradeInPayoffHint: "opcional -- si aún no está pagado",
+    apr: "Tasa de interés (APR)",
+    salesTax: "Tasa de impuesto sobre venta",
+    salesTaxHint: "tu tasa combinada estatal + local",
+    fees: "Cargos",
+    feesHint: "trámites, registro, cargos del concesionario",
+    loanTerm: "Plazo del préstamo",
+    customTermPlaceholder: "Personalizado",
+    moSuffix: "meses",
+    termHint: (max: number) =>
+      `Cualquier plazo de 1 a ${max} meses -- no todos los prestamistas ofrecen todos los plazos, pero el cálculo funciona igual.`,
+    rollTaxAndFees: "Incluir impuestos y cargos en el préstamo",
+    rollTaxAndFeesHint: "(sin marcar = pagarlos al firmar)",
+    insurance: "Estimado de seguro mensual",
+    insuranceHint:
+      "opcional -- ingresa tu propia cotización para un total preciso. El seguro varía según el estado, conductor, vehículo, nivel de cobertura, historial crediticio y aseguradora, así que no hay un estimado honesto que sirva para todos.",
+    negativeEquityWarning: (owed: string, worth: string, gap: string) =>
+      `Debes ${owed} en tu auto a cambio pero solo vale ${worth}. Esa diferencia de ${gap} en capital negativo no desaparece -- se incluye en este préstamo, así que la estás financiando (más los intereses) junto con el auto nuevo.`,
+    monthlyPayment: "Pago mensual",
+    negativeEquityRolledIn: "Capital negativo incluido",
+    amountFinanced: "Monto financiado",
+    dueAtSigning: "Total a pagar al firmar",
+    totalInterest: "Interés total",
+    insuranceOver: (term: number) => `Seguro durante ${term} meses`,
+    vehiclePriceAfford: "Precio de vehículo que te alcanza",
+    trueTotalCost: "Costo total real",
+    comparisonTitleBudget: "Mismo presupuesto, diferente plazo",
+    comparisonTitlePrice: "Mismo auto, diferente plazo",
+    comparisonSubtitleBudget:
+      "Un plazo más largo no solo baja el pago de un auto dado -- también sube el precio del auto que tu presupuesto puede alcanzar. Esto es lo que este presupuesto exacto alcanza en cada plazo común.",
+    comparisonSubtitlePrice: (customSuffix: string) =>
+      `Un pago mensual más bajo por un préstamo más largo casi siempre significa pagar más en total. Aquí está este préstamo exacto en cada plazo común${customSuffix}.`,
+    comparisonSubtitleCustomSuffix: ", más tu plazo personalizado",
+    term: "Plazo",
+    priceAfford: "Precio que te alcanza",
+    monthly: "Mensual",
+    payExtraTitle: "Paga extra, ahorra intereses",
+    payExtraSubtitle:
+      "Los préstamos de auto cargan más intereses al principio -- los primeros pagos son mayormente interés, los últimos mayormente capital. Los dólares extra sobre el pago requerido van directo al capital, así que reducen el interés que pagarías después sobre un saldo que ya desapareció antes.",
+    extraPerMonth: "Extra por mes",
+    extraPaymentResult: (extra: string, months: number, newMonth: number, oldMonth: number, saved: string) =>
+      `Pagar ${extra}/mes extra termina este préstamo ${months} meses antes (mes ${newMonth} en vez del mes ${oldMonth}) y ahorra ${saved} en intereses.`,
+    extraPaymentNoEffect:
+      "Ese monto extra no acorta el préstamo (puede exceder el saldo restante casi de inmediato, o el préstamo ya no genera intereses).",
+    footnotes: [
+      "El modo \"Sé mi presupuesto\" trata tu estimado de seguro mensual como parte de ese presupuesto (si ingresaste uno), y luego encuentra el precio de vehículo más alto cuyo pago de préstamo todavía cabe en lo que queda.",
+      "El impuesto sobre venta asume el caso común donde el valor del auto a cambio reduce el monto gravable -- algunos estados (especialmente California) gravan el precio completo del vehículo sin importar el auto a cambio, así que esto podría sobreestimar el impuesto ahí.",
+      "Se asume que el capital negativo de un auto a cambio siempre se incluye en el préstamo nuevo (el caso común) en vez de pagarse en efectivo al firmar.",
+      "El estimado de pago extra asume que cada dólar extra va al capital cada mes, de forma constante, durante toda la vida del préstamo -- los prestamistas reales y los hábitos de pago varían.",
+      "El pago mensual usa amortización estándar de tasa fija sobre el monto financiado; no modela un préstamo de tasa variable, pago global (\"balloon\"), ni arrendamiento.",
+      "El estimado de seguro es únicamente lo que tú ingreses -- no hay forma de generar una cotización personalizada solo con estos datos.",
+      "Esto es un estimado con fines informativos generales, no es asesoría financiera.",
+    ],
+  },
+} as const;
+
+export default function Calculator({ locale = "en" }: { locale?: Locale }) {
+  const t = STRINGS[locale];
   const [mode, setMode] = useState<Mode>("price");
   const [monthlyBudget, setMonthlyBudget] = useState("500");
   const [vehiclePrice, setVehiclePrice] = useState("35000");
@@ -76,22 +219,12 @@ export default function Calculator() {
 
   const isPresetTerm = (COMPARISON_TERMS_MONTHS as readonly number[]).includes(termMonths);
 
-  // The comparison table always shows the standard terms, plus the current
-  // term if it's a custom (non-preset) value, sorted into place -- so a
-  // custom 42-month term shows up right between 36 and 48, not bolted on
-  // at the end or missing entirely.
   const comparisonTerms = useMemo(() => {
     const terms = new Set<number>(COMPARISON_TERMS_MONTHS);
     terms.add(termMonths);
     return Array.from(terms).sort((a, b) => a - b);
   }, [termMonths]);
 
-  // Budget mode solves the calculation backwards: instead of a vehicle
-  // price plugged in directly, the price itself is derived from what
-  // monthly payment the budget allows. `effectiveInput` is what every
-  // downstream calculation (breakdown, comparison table, extra-payment
-  // tool) actually runs on, so the rest of this component doesn't need to
-  // know which direction the numbers came from.
   const affordability = useMemo(
     () => calculateAffordablePrice(parseAmount(monthlyBudget), input),
     [monthlyBudget, input],
@@ -110,9 +243,6 @@ export default function Calculator() {
     () => calculateAffordabilityComparison(parseAmount(monthlyBudget), input, comparisonTerms),
     [monthlyBudget, input, comparisonTerms],
   );
-  // Normalize the two comparison shapes (price-mode rows carry a monthly
-  // payment; budget-mode rows carry a derived price) into one shape so the
-  // table below doesn't need to know which mode produced its data.
   const comparisonRows = useMemo(
     () =>
       mode === "budget"
@@ -157,13 +287,8 @@ export default function Calculator() {
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-10">
-      <h1 className="text-2xl font-semibold tracking-tight">
-        Car Payment Truth Calculator
-      </h1>
-      <p className="mt-2 text-sm text-neutral-500">
-        The monthly payment isn&apos;t the price of the car. See the real
-        total -- interest, fees, and what a longer loan term actually costs.
-      </p>
+      <h1 className="text-2xl font-semibold tracking-tight">{t.title}</h1>
+      <p className="mt-2 text-sm text-neutral-500">{t.subtitle}</p>
 
       <div className="mt-8 space-y-6 rounded-xl border border-neutral-200 p-6 dark:border-neutral-800">
         <div>
@@ -177,7 +302,7 @@ export default function Calculator() {
                   : "border-neutral-300 dark:border-neutral-700"
               }`}
             >
-              I know the price
+              {t.modePrice}
             </button>
             <button
               type="button"
@@ -188,13 +313,11 @@ export default function Calculator() {
                   : "border-neutral-300 dark:border-neutral-700"
               }`}
             >
-              I know my budget
+              {t.modeBudget}
             </button>
           </div>
           <p className="mt-1 text-xs text-neutral-500">
-            {mode === "price"
-              ? "Enter a price below to see the real monthly payment and total cost."
-              : "Enter what you can pay per month below to see the price of car that actually fits."}
+            {mode === "price" ? t.modePriceHint : t.modeBudgetHint}
           </p>
         </div>
 
@@ -202,7 +325,7 @@ export default function Calculator() {
           {mode === "price" ? (
             <div>
               <label htmlFor="vehicle-price" className="block text-sm font-medium">
-                Vehicle price
+                {t.vehiclePrice}
               </label>
               <div className="mt-1 flex items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
                 <span className="text-neutral-400">$</span>
@@ -220,10 +343,10 @@ export default function Calculator() {
           ) : (
             <div>
               <label htmlFor="monthly-budget" className="block text-sm font-medium">
-                Monthly budget
+                {t.monthlyBudget}
                 <span className="block text-xs font-normal text-neutral-500">
-                  total you can pay per month
-                  {parseAmount(monthlyInsuranceEstimate) > 0 ? ", insurance included" : ""}
+                  {t.monthlyBudgetHint}
+                  {parseAmount(monthlyInsuranceEstimate) > 0 ? t.monthlyBudgetInsuranceSuffix : ""}
                 </span>
               </label>
               <div className="mt-1 flex items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
@@ -242,7 +365,7 @@ export default function Calculator() {
           )}
           <div>
             <label htmlFor="down-payment" className="block text-sm font-medium">
-              Down payment
+              {t.downPayment}
             </label>
             <div className="mt-1 flex items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
               <span className="text-neutral-400">$</span>
@@ -259,7 +382,7 @@ export default function Calculator() {
           </div>
           <div>
             <label htmlFor="trade-in" className="block text-sm font-medium">
-              Trade-in value
+              {t.tradeIn}
             </label>
             <div className="mt-1 flex items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
               <span className="text-neutral-400">$</span>
@@ -276,10 +399,8 @@ export default function Calculator() {
           </div>
           <div>
             <label htmlFor="trade-in-payoff" className="block text-sm font-medium">
-              Still owed on trade-in
-              <span className="block text-xs font-normal text-neutral-500">
-                optional -- if it&apos;s not paid off yet
-              </span>
+              {t.tradeInPayoff}
+              <span className="block text-xs font-normal text-neutral-500">{t.tradeInPayoffHint}</span>
             </label>
             <div className="mt-1 flex items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
               <span className="text-neutral-400">$</span>
@@ -297,7 +418,7 @@ export default function Calculator() {
           </div>
           <div>
             <label htmlFor="apr" className="block text-sm font-medium">
-              Interest rate (APR)
+              {t.apr}
             </label>
             <div className="mt-1 flex items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
               <input
@@ -314,10 +435,8 @@ export default function Calculator() {
           </div>
           <div>
             <label htmlFor="sales-tax" className="block text-sm font-medium">
-              Sales tax rate
-              <span className="block text-xs font-normal text-neutral-500">
-                your combined state + local rate
-              </span>
+              {t.salesTax}
+              <span className="block text-xs font-normal text-neutral-500">{t.salesTaxHint}</span>
             </label>
             <div className="mt-1 flex items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
               <input
@@ -334,10 +453,8 @@ export default function Calculator() {
           </div>
           <div>
             <label htmlFor="fees" className="block text-sm font-medium">
-              Fees
-              <span className="block text-xs font-normal text-neutral-500">
-                doc, registration, dealer fees
-              </span>
+              {t.fees}
+              <span className="block text-xs font-normal text-neutral-500">{t.feesHint}</span>
             </label>
             <div className="mt-1 flex items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
               <span className="text-neutral-400">$</span>
@@ -355,7 +472,7 @@ export default function Calculator() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium">Loan term</label>
+          <label className="block text-sm font-medium">{t.loanTerm}</label>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             {COMPARISON_TERMS_MONTHS.map((months) => (
               <button
@@ -368,7 +485,7 @@ export default function Calculator() {
                     : "border-neutral-300 dark:border-neutral-700"
                 }`}
               >
-                {months} mo
+                {months} {t.moSuffix}
               </button>
             ))}
             <div
@@ -383,18 +500,15 @@ export default function Calculator() {
                 type="number"
                 min="1"
                 max={MAX_CUSTOM_TERM_MONTHS}
-                placeholder="Custom"
+                placeholder={t.customTermPlaceholder}
                 value={!isPresetTerm ? termMonths : customTermRaw}
                 onChange={(e) => handleCustomTermChange(e.target.value)}
                 className="w-16 bg-transparent py-2 text-center text-sm outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="text-sm text-neutral-400">mo</span>
+              <span className="text-sm text-neutral-400">{t.moSuffix}</span>
             </div>
           </div>
-          <p className="mt-1 text-xs text-neutral-500">
-            Any term from 1 to {MAX_CUSTOM_TERM_MONTHS} months -- not every
-            lender offers every length, but the math works the same way.
-          </p>
+          <p className="mt-1 text-xs text-neutral-500">{t.termHint(MAX_CUSTOM_TERM_MONTHS)}</p>
         </div>
 
         <label className="flex items-center gap-2 text-sm">
@@ -404,19 +518,14 @@ export default function Calculator() {
             onChange={(e) => setRollTaxAndFeesIntoLoan(e.target.checked)}
             className="h-4 w-4 rounded border-neutral-300 dark:border-neutral-700"
           />
-          Roll tax &amp; fees into the loan
-          <span className="text-neutral-500">(unchecked = pay them at signing)</span>
+          {t.rollTaxAndFees}
+          <span className="text-neutral-500">{t.rollTaxAndFeesHint}</span>
         </label>
 
         <div>
           <label htmlFor="insurance" className="block text-sm font-medium">
-            Monthly insurance estimate
-            <span className="block text-xs font-normal text-neutral-500">
-              optional -- enter your own quote for an accurate total.
-              Insurance varies by state, driver, vehicle, coverage level,
-              credit profile, and insurer, so there&apos;s no honest
-              one-size-fits-all estimate to prefill here.
-            </span>
+            {t.insurance}
+            <span className="block text-xs font-normal text-neutral-500">{t.insuranceHint}</span>
           </label>
           <div className="mt-1 flex w-40 items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
             <span className="text-neutral-400">$</span>
@@ -435,37 +544,36 @@ export default function Calculator() {
 
         {result.negativeEquity > 0 && (
           <p className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
-            You owe {currency.format(parseAmount(tradeInPayoff))} on your
-            trade-in but it&apos;s only worth {currency.format(parseAmount(tradeInValue))}
-            . That {currency.format(result.negativeEquity)} of negative
-            equity doesn&apos;t go away -- it&apos;s rolled into this loan,
-            so you&apos;re financing it (plus interest on it) along with the
-            new car.
+            {t.negativeEquityWarning(
+              currency.format(parseAmount(tradeInPayoff)),
+              currency.format(parseAmount(tradeInValue)),
+              currency.format(result.negativeEquity),
+            )}
           </p>
         )}
 
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 border-t border-neutral-200 pt-4 text-sm text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
           {mode === "budget" && (
             <>
-              <span>Monthly payment</span>
+              <span>{t.monthlyPayment}</span>
               <span className="text-right">{currency.format(result.monthlyPayment)}</span>
             </>
           )}
           {result.negativeEquity > 0 && (
             <>
-              <span>Negative equity rolled in</span>
+              <span>{t.negativeEquityRolledIn}</span>
               <span className="text-right">{currency.format(result.negativeEquity)}</span>
             </>
           )}
-          <span>Amount financed</span>
+          <span>{t.amountFinanced}</span>
           <span className="text-right">{currency.format(result.amountFinanced)}</span>
-          <span>Due at signing</span>
+          <span>{t.dueAtSigning}</span>
           <span className="text-right">{currency.format(result.dueAtSigning)}</span>
-          <span>Total interest</span>
+          <span>{t.totalInterest}</span>
           <span className="text-right">{currency.format(result.totalInterest)}</span>
           {result.totalInsuranceOverTerm > 0 && (
             <>
-              <span>Insurance over {termMonths} mo</span>
+              <span>{t.insuranceOver(termMonths)}</span>
               <span className="text-right">{currency.format(result.totalInsuranceOverTerm)}</span>
             </>
           )}
@@ -474,7 +582,7 @@ export default function Calculator() {
         <div className="grid grid-cols-2 gap-3 border-t border-neutral-200 pt-4 dark:border-neutral-800">
           <div className="rounded-lg bg-neutral-100 p-4 dark:bg-neutral-900">
             <p className="text-xs text-neutral-500">
-              {mode === "budget" ? "Vehicle price you can afford" : "Monthly payment"}
+              {mode === "budget" ? t.vehiclePriceAfford : t.monthlyPayment}
             </p>
             <p className="text-2xl font-semibold tracking-tight">
               {mode === "budget"
@@ -483,7 +591,7 @@ export default function Calculator() {
             </p>
           </div>
           <div className="rounded-lg bg-neutral-100 p-4 dark:bg-neutral-900">
-            <p className="text-xs text-neutral-500">True total cost</p>
+            <p className="text-xs text-neutral-500">{t.trueTotalCost}</p>
             <p className="text-2xl font-semibold tracking-tight">
               {currency.format(result.trueTotalCost)}
             </p>
@@ -493,23 +601,23 @@ export default function Calculator() {
 
       <div className="mt-8">
         <h2 className="text-lg font-semibold tracking-tight">
-          {mode === "budget" ? "Same budget, different term" : "Same car, different term"}
+          {mode === "budget" ? t.comparisonTitleBudget : t.comparisonTitlePrice}
         </h2>
         <p className="mt-1 text-sm text-neutral-500">
           {mode === "budget"
-            ? "A longer term doesn't just lower the payment on a given car -- it raises the price of car your budget can reach in the first place. Here's what this exact budget affords at every common term length."
-            : `A lower monthly payment from a longer loan almost always means paying more overall. Here's this exact loan at every common term length${!isPresetTerm ? ", plus your custom term" : ""}.`}
+            ? t.comparisonSubtitleBudget
+            : t.comparisonSubtitlePrice(!isPresetTerm ? t.comparisonSubtitleCustomSuffix : "")}
         </p>
         <div className="mt-3 overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-800">
           <table className="w-full min-w-[480px] text-sm">
             <thead>
               <tr className="border-b border-neutral-200 text-left text-xs text-neutral-500 dark:border-neutral-800">
-                <th className="px-4 py-2 font-medium">Term</th>
+                <th className="px-4 py-2 font-medium">{t.term}</th>
                 <th className="px-4 py-2 font-medium">
-                  {mode === "budget" ? "Price you can afford" : "Monthly"}
+                  {mode === "budget" ? t.priceAfford : t.monthly}
                 </th>
-                <th className="px-4 py-2 font-medium">Total interest</th>
-                <th className="px-4 py-2 font-medium">True total cost</th>
+                <th className="px-4 py-2 font-medium">{t.totalInterest}</th>
+                <th className="px-4 py-2 font-medium">{t.trueTotalCost}</th>
               </tr>
             </thead>
             <tbody>
@@ -522,7 +630,7 @@ export default function Calculator() {
                       : ""
                   }`}
                 >
-                  <td className="px-4 py-2 font-medium">{row.termMonths} mo</td>
+                  <td className="px-4 py-2 font-medium">{row.termMonths} {t.moSuffix}</td>
                   <td className="px-4 py-2">{row.primary}</td>
                   <td className="px-4 py-2">{currencyWhole.format(row.totalInterest)}</td>
                   <td className="px-4 py-2">{currencyWhole.format(row.trueTotalCost)}</td>
@@ -534,19 +642,11 @@ export default function Calculator() {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-lg font-semibold tracking-tight">
-          Pay extra, save interest
-        </h2>
-        <p className="mt-1 text-sm text-neutral-500">
-          Auto loans are front-loaded with interest -- early payments are
-          mostly interest, later ones mostly principal. Extra dollars on top
-          of the required payment skip straight to principal, so they cut
-          interest you&apos;d otherwise pay later on a balance that&apos;s
-          now gone sooner.
-        </p>
+        <h2 className="text-lg font-semibold tracking-tight">{t.payExtraTitle}</h2>
+        <p className="mt-1 text-sm text-neutral-500">{t.payExtraSubtitle}</p>
         <div className="mt-3 flex items-center gap-2">
           <label htmlFor="extra-payment" className="text-sm font-medium">
-            Extra per month
+            {t.extraPerMonth}
           </label>
           <div className="flex w-32 items-center rounded-md border border-neutral-300 px-3 dark:border-neutral-700">
             <span className="text-neutral-400">$</span>
@@ -564,56 +664,23 @@ export default function Calculator() {
         </div>
         {parseAmount(extraPerMonth) > 0 && (
           <p className="mt-3 rounded-md bg-neutral-100 px-3 py-2 text-sm dark:bg-neutral-900">
-            {extraPaymentImpact.monthsSaved > 0 ? (
-              <>
-                Paying an extra {currency.format(parseAmount(extraPerMonth))}
-                /month pays this loan off{" "}
-                <strong>{extraPaymentImpact.monthsSaved} months early</strong>{" "}
-                (month {extraPaymentImpact.monthsToPayoff} instead of{" "}
-                {extraPaymentImpact.baselineMonths}) and saves{" "}
-                <strong>{currency.format(extraPaymentImpact.interestSaved)}</strong>{" "}
-                in interest.
-              </>
-            ) : (
-              "That extra amount doesn't shorten the loan (it may exceed the remaining balance almost immediately, or the loan is already interest-free)."
-            )}
+            {extraPaymentImpact.monthsSaved > 0
+              ? t.extraPaymentResult(
+                  currency.format(parseAmount(extraPerMonth)),
+                  extraPaymentImpact.monthsSaved,
+                  extraPaymentImpact.monthsToPayoff,
+                  extraPaymentImpact.baselineMonths,
+                  currency.format(extraPaymentImpact.interestSaved),
+                )
+              : t.extraPaymentNoEffect}
           </p>
         )}
       </div>
 
       <ul className="mt-6 list-inside list-disc space-y-1 text-xs text-neutral-500">
-        <li>
-          &quot;I know my budget&quot; mode treats your monthly insurance
-          estimate as part of that budget (if you&apos;ve entered one), then
-          finds the highest vehicle price whose loan payment still fits what&apos;s
-          left.
-        </li>
-        <li>
-          Sales tax assumes the common case where trade-in value reduces the
-          taxable amount -- a few states (notably California) tax the full
-          vehicle price regardless of trade-in, so this may overstate tax
-          there.
-        </li>
-        <li>
-          Negative equity from a trade-in loan is assumed to always be
-          rolled into the new loan (the common case) rather than paid in
-          cash at signing.
-        </li>
-        <li>
-          The extra-payment payoff estimate assumes every extra dollar goes
-          to principal each month, consistently, for the life of the loan --
-          real-world lenders and payment habits vary.
-        </li>
-        <li>
-          Monthly payment uses standard fixed-rate amortization on the
-          amount financed; it doesn&apos;t model a variable-rate loan,
-          balloon payment, or lease.
-        </li>
-        <li>
-          The insurance estimate is only ever what you enter -- there&apos;s
-          no way to generate a personalized quote from these inputs alone.
-        </li>
-        <li>This is an estimate for general informational purposes, not financial advice.</li>
+        {t.footnotes.map((note) => (
+          <li key={note}>{note}</li>
+        ))}
       </ul>
     </div>
   );

@@ -1,68 +1,178 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://carpaymenttruth.com/</loc>
-    <lastmod>2026-09-14</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es" />
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://carpaymenttruth.com/es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es" />
+    <lastmod>2026-09-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://carpaymenttruth.com/72-vs-84-month-car-loan</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/72-vs-84-month-car-loan" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/72-vs-84-month-car-loan" />
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://carpaymenttruth.com/es/72-vs-84-month-car-loan</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/72-vs-84-month-car-loan" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/72-vs-84-month-car-loan" />
     <lastmod>2026-09-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://carpaymenttruth.com/out-the-door-price-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/out-the-door-price-calculator" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/out-the-door-price-calculator" />
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://carpaymenttruth.com/es/out-the-door-price-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/out-the-door-price-calculator" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/out-the-door-price-calculator" />
     <lastmod>2026-09-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://carpaymenttruth.com/dealer-add-on-cost-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/dealer-add-on-cost-calculator" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/dealer-add-on-cost-calculator" />
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://carpaymenttruth.com/es/dealer-add-on-cost-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/dealer-add-on-cost-calculator" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/dealer-add-on-cost-calculator" />
     <lastmod>2026-09-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://carpaymenttruth.com/compare-auto-loan-offers</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/compare-auto-loan-offers" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/compare-auto-loan-offers" />
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://carpaymenttruth.com/es/compare-auto-loan-offers</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/compare-auto-loan-offers" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/compare-auto-loan-offers" />
     <lastmod>2026-09-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://carpaymenttruth.com/auto-refinance-savings-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/auto-refinance-savings-calculator" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/auto-refinance-savings-calculator" />
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://carpaymenttruth.com/es/auto-refinance-savings-calculator</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/auto-refinance-savings-calculator" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/auto-refinance-savings-calculator" />
     <lastmod>2026-09-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://carpaymenttruth.com/methodology</loc>
-    <lastmod>2026-09-14</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/methodology" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/methodology" />
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://carpaymenttruth.com/es/methodology</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/methodology" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/methodology" />
+    <lastmod>2026-09-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://carpaymenttruth.com/about</loc>
-    <lastmod>2026-09-14</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/about" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/about" />
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://carpaymenttruth.com/es/about</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/about" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/about" />
+    <lastmod>2026-09-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://carpaymenttruth.com/contact</loc>
-    <lastmod>2026-09-14</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/contact" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/contact" />
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://carpaymenttruth.com/es/contact</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/contact" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/contact" />
+    <lastmod>2026-09-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://carpaymenttruth.com/disclaimer</loc>
-    <lastmod>2026-09-14</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/disclaimer" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/disclaimer" />
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://carpaymenttruth.com/es/disclaimer</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/disclaimer" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/disclaimer" />
+    <lastmod>2026-09-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://carpaymenttruth.com/privacy</loc>
-    <lastmod>2026-09-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/privacy" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/privacy" />
+    <lastmod>2026-09-20</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://carpaymenttruth.com/es/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://carpaymenttruth.com/privacy" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://carpaymenttruth.com/es/privacy" />
+    <lastmod>2026-09-20</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

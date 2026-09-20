@@ -5,7 +5,13 @@ export const metadata: Metadata = {
   title: "About — Car Payment Truth Calculator",
   description:
     "Who built the Car Payment Truth Calculator and why -- an independent, ad-supported tool for seeing the real cost of a car loan.",
-  alternates: { canonical: "/about" },
+  alternates: {
+    canonical: "/about",
+    languages: {
+      "en-US": "https://carpaymenttruth.com/about",
+      es: "https://carpaymenttruth.com/es/about",
+    },
+  },
 };
 
 export default function About() {

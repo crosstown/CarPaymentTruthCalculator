@@ -6,7 +6,13 @@ export const metadata: Metadata = {
   title: "Dealer Add-On Cost Calculator | What Extended Warranties Really Cost",
   description:
     "See the real cost of rolling a dealer add-on -- extended warranty, GAP, paint protection -- into your car loan, including the interest it adds over the loan term.",
-  alternates: { canonical: "/dealer-add-on-cost-calculator" },
+  alternates: {
+    canonical: "/dealer-add-on-cost-calculator",
+    languages: {
+      "en-US": "https://carpaymenttruth.com/dealer-add-on-cost-calculator",
+      es: "https://carpaymenttruth.com/es/dealer-add-on-cost-calculator",
+    },
+  },
 };
 
 const BREADCRUMB_JSON_LD = {

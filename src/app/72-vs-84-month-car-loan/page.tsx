@@ -6,7 +6,13 @@ export const metadata: Metadata = {
   title: "72 vs 84 Month Car Loan: True Cost Comparison Calculator",
   description:
     "Is an 84-month car loan bad? Compare the real monthly payment, total interest, and true total cost of a 72-month vs 84-month auto loan side by side.",
-  alternates: { canonical: "/72-vs-84-month-car-loan" },
+  alternates: {
+    canonical: "/72-vs-84-month-car-loan",
+    languages: {
+      "en-US": "https://carpaymenttruth.com/72-vs-84-month-car-loan",
+      es: "https://carpaymenttruth.com/es/72-vs-84-month-car-loan",
+    },
+  },
 };
 
 const BREADCRUMB_JSON_LD = {

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { calculateAddOnCost } from "@/lib/carLoan/addOnCost";
+import type { Locale } from "./Calculator";
 
 const fmtMoney = (n: number) =>
   n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
@@ -13,14 +14,51 @@ const DEFAULTS = {
   termMonths: 60,
 };
 
-const ADD_ON_PRESETS = [
-  { label: "Extended warranty", price: 2500 },
-  { label: "GAP coverage", price: 800 },
-  { label: "Paint protection", price: 900 },
-  { label: "Tire & wheel package", price: 1200 },
-];
+const STRINGS = {
+  en: {
+    baseAmount: "Vehicle loan amount (without add-on)",
+    addOnPrice: "Add-on price",
+    apr: "APR",
+    term: "Loan term",
+    presets: [
+      { label: "Extended warranty", price: 2500 },
+      { label: "GAP coverage", price: 800 },
+      { label: "Paint protection", price: 900 },
+      { label: "Tire & wheel package", price: 1200 },
+    ],
+    withoutAddOn: "Without add-on",
+    withAddOn: "With add-on rolled in",
+    perMo: "/mo",
+    totalInterest: "Total interest:",
+    trueCost: "True cost of the add-on, financed",
+    moSuffix: "mo",
+    breakdown: (price: string, interest: string, monthly: string) =>
+      `${price} sticker price + ${interest} interest from rolling it into the loan (+${monthly}/mo)`,
+  },
+  es: {
+    baseAmount: "Monto del préstamo del vehículo (sin complemento)",
+    addOnPrice: "Precio del complemento",
+    apr: "APR",
+    term: "Plazo del préstamo",
+    presets: [
+      { label: "Garantía extendida", price: 2500 },
+      { label: "Cobertura GAP", price: 800 },
+      { label: "Protección de pintura", price: 900 },
+      { label: "Paquete de llantas y rines", price: 1200 },
+    ],
+    withoutAddOn: "Sin complemento",
+    withAddOn: "Con complemento incluido",
+    perMo: "/mes",
+    totalInterest: "Interés total:",
+    trueCost: "Costo real del complemento, financiado",
+    moSuffix: "meses",
+    breakdown: (price: string, interest: string, monthly: string) =>
+      `${price} precio de lista + ${interest} de interés por incluirlo en el préstamo (+${monthly}/mes)`,
+  },
+} as const;
 
-export default function AddOnCostCalculator() {
+export default function AddOnCostCalculator({ locale = "en" }: { locale?: Locale }) {
+  const t = STRINGS[locale];
   const [baseAmountFinanced, setBaseAmountFinanced] = useState(DEFAULTS.baseAmountFinanced);
   const [addOnPrice, setAddOnPrice] = useState(DEFAULTS.addOnPrice);
   const [aprPercent, setAprPercent] = useState(DEFAULTS.aprPercent);
@@ -56,14 +94,14 @@ export default function AddOnCostCalculator() {
   return (
     <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {field("Vehicle loan amount (without add-on)", baseAmountFinanced, setBaseAmountFinanced, "$")}
-        {field("Add-on price", addOnPrice, setAddOnPrice, "$")}
-        {field("APR", aprPercent, setAprPercent, undefined, "%")}
-        {field("Loan term", termMonths, setTermMonths, undefined, "mo")}
+        {field(t.baseAmount, baseAmountFinanced, setBaseAmountFinanced, "$")}
+        {field(t.addOnPrice, addOnPrice, setAddOnPrice, "$")}
+        {field(t.apr, aprPercent, setAprPercent, undefined, "%")}
+        {field(t.term, termMonths, setTermMonths, undefined, t.moSuffix)}
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        {ADD_ON_PRESETS.map((p) => (
+        {t.presets.map((p) => (
           <button
             key={p.label}
             type="button"
@@ -77,33 +115,32 @@ export default function AddOnCostCalculator() {
 
       <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="rounded-md bg-neutral-100 p-4 dark:bg-neutral-900">
-          <p className="text-sm font-medium text-neutral-500">Without add-on</p>
+          <p className="text-sm font-medium text-neutral-500">{t.withoutAddOn}</p>
           <p className="mt-1 text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-            {fmtMoney(result.baseMonthlyPayment)}<span className="text-sm font-normal text-neutral-500">/mo</span>
+            {fmtMoney(result.baseMonthlyPayment)}<span className="text-sm font-normal text-neutral-500">{t.perMo}</span>
           </p>
           <p className="mt-1 text-sm text-neutral-500">
-            Total interest: {fmtMoney(result.baseTotalInterest)}
+            {t.totalInterest} {fmtMoney(result.baseTotalInterest)}
           </p>
         </div>
         <div className="rounded-md bg-neutral-100 p-4 dark:bg-neutral-900">
-          <p className="text-sm font-medium text-neutral-500">With add-on rolled in</p>
+          <p className="text-sm font-medium text-neutral-500">{t.withAddOn}</p>
           <p className="mt-1 text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-            {fmtMoney(result.monthlyPaymentWithAddOn)}<span className="text-sm font-normal text-neutral-500">/mo</span>
+            {fmtMoney(result.monthlyPaymentWithAddOn)}<span className="text-sm font-normal text-neutral-500">{t.perMo}</span>
           </p>
           <p className="mt-1 text-sm text-neutral-500">
-            Total interest: {fmtMoney(result.totalInterestWithAddOn)}
+            {t.totalInterest} {fmtMoney(result.totalInterestWithAddOn)}
           </p>
         </div>
       </div>
 
       <div className="mt-4 rounded-md bg-neutral-100 p-4 dark:bg-neutral-900">
-        <p className="text-sm font-medium text-neutral-500">True cost of the add-on, financed</p>
+        <p className="text-sm font-medium text-neutral-500">{t.trueCost}</p>
         <p className="mt-1 text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
           {fmtMoney(result.trueAddOnCost)}
         </p>
         <p className="mt-1 text-sm text-neutral-500">
-          {fmtMoney(addOnPrice)} sticker price + {fmtMoney(result.interestOnAddOn)} interest from
-          rolling it into the loan (+{fmtMoney(result.monthlyIncrease)}/mo)
+          {t.breakdown(fmtMoney(addOnPrice), fmtMoney(result.interestOnAddOn), fmtMoney(result.monthlyIncrease))}
         </p>
       </div>
     </div>

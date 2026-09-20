@@ -6,7 +6,13 @@ export const metadata: Metadata = {
   title: "Out-the-Door Price Calculator | Car Price With Tax, Fees & Rebates",
   description:
     "Calculate the real out-the-door price of a car: vehicle price, sales tax, doc fee, registration, trade-in, and rebates -- the total before any loan is involved.",
-  alternates: { canonical: "/out-the-door-price-calculator" },
+  alternates: {
+    canonical: "/out-the-door-price-calculator",
+    languages: {
+      "en-US": "https://carpaymenttruth.com/out-the-door-price-calculator",
+      es: "https://carpaymenttruth.com/es/out-the-door-price-calculator",
+    },
+  },
 };
 
 const BREADCRUMB_JSON_LD = {

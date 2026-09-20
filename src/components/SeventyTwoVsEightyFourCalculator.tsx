@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { calculateTermComparison, COMPARISON_TERMS_MONTHS } from "@/lib/carLoan/calculate";
 import type { CarLoanInput } from "@/lib/carLoan/types";
+import type { Locale } from "./Calculator";
 
 const fmtMoney = (n: number) =>
   n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
@@ -15,7 +16,45 @@ const DEFAULTS = {
   fees: 500,
 };
 
-export default function SeventyTwoVsEightyFourCalculator() {
+const STRINGS = {
+  en: {
+    vehiclePrice: "Vehicle price",
+    downPayment: "Down payment",
+    apr: "APR",
+    salesTax: "Sales tax rate",
+    fees: "Fees",
+    months72: "72 months",
+    months84: "84 months",
+    perMo: "/mo",
+    totalInterest: "Total interest:",
+    trueTotalCost: "True total cost:",
+    summary: (payDiff: string, intDiff: string) =>
+      `Stretching this loan from 72 to 84 months lowers the payment by ${payDiff}/mo but costs ${intDiff} more in total interest over the life of the loan.`,
+    term: "Term",
+    monthly: "Monthly",
+    moSuffix: "mo",
+  },
+  es: {
+    vehiclePrice: "Precio del vehículo",
+    downPayment: "Enganche",
+    apr: "APR",
+    salesTax: "Tasa de impuesto sobre venta",
+    fees: "Cargos",
+    months72: "72 meses",
+    months84: "84 meses",
+    perMo: "/mes",
+    totalInterest: "Interés total:",
+    trueTotalCost: "Costo total real:",
+    summary: (payDiff: string, intDiff: string) =>
+      `Estirar este préstamo de 72 a 84 meses baja el pago en ${payDiff}/mes pero cuesta ${intDiff} más en interés total durante la vida del préstamo.`,
+    term: "Plazo",
+    monthly: "Mensual",
+    moSuffix: "meses",
+  },
+} as const;
+
+export default function SeventyTwoVsEightyFourCalculator({ locale = "en" }: { locale?: Locale }) {
+  const t = STRINGS[locale];
   const [vehiclePrice, setVehiclePrice] = useState(DEFAULTS.vehiclePrice);
   const [downPayment, setDownPayment] = useState(DEFAULTS.downPayment);
   const [aprPercent, setAprPercent] = useState(DEFAULTS.aprPercent);
@@ -67,56 +106,51 @@ export default function SeventyTwoVsEightyFourCalculator() {
   return (
     <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {field("Vehicle price", vehiclePrice, setVehiclePrice, "$")}
-        {field("Down payment", downPayment, setDownPayment, "$")}
-        {field("APR", aprPercent, setAprPercent, undefined, "%")}
-        {field("Sales tax rate", salesTaxPercent, setSalesTaxPercent, undefined, "%")}
-        {field("Fees", fees, setFees, "$")}
+        {field(t.vehiclePrice, vehiclePrice, setVehiclePrice, "$")}
+        {field(t.downPayment, downPayment, setDownPayment, "$")}
+        {field(t.apr, aprPercent, setAprPercent, undefined, "%")}
+        {field(t.salesTax, salesTaxPercent, setSalesTaxPercent, undefined, "%")}
+        {field(t.fees, fees, setFees, "$")}
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="rounded-md bg-neutral-100 p-4 dark:bg-neutral-900">
-          <p className="text-sm font-medium text-neutral-500">72 months</p>
+          <p className="text-sm font-medium text-neutral-500">{t.months72}</p>
           <p className="mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-            {fmtMoney(seventyTwo.monthlyPayment)}<span className="text-sm font-normal text-neutral-500">/mo</span>
+            {fmtMoney(seventyTwo.monthlyPayment)}<span className="text-sm font-normal text-neutral-500">{t.perMo}</span>
           </p>
           <p className="mt-1 text-sm text-neutral-500">
-            Total interest: {fmtMoney(seventyTwo.totalInterest)}
+            {t.totalInterest} {fmtMoney(seventyTwo.totalInterest)}
           </p>
-          <p className="text-sm text-neutral-500">True total cost: {fmtMoney(seventyTwo.trueTotalCost)}</p>
+          <p className="text-sm text-neutral-500">{t.trueTotalCost} {fmtMoney(seventyTwo.trueTotalCost)}</p>
         </div>
         <div className="rounded-md bg-neutral-100 p-4 dark:bg-neutral-900">
-          <p className="text-sm font-medium text-neutral-500">84 months</p>
+          <p className="text-sm font-medium text-neutral-500">{t.months84}</p>
           <p className="mt-1 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-            {fmtMoney(eightyFour.monthlyPayment)}<span className="text-sm font-normal text-neutral-500">/mo</span>
+            {fmtMoney(eightyFour.monthlyPayment)}<span className="text-sm font-normal text-neutral-500">{t.perMo}</span>
           </p>
           <p className="mt-1 text-sm text-neutral-500">
-            Total interest: {fmtMoney(eightyFour.totalInterest)}
+            {t.totalInterest} {fmtMoney(eightyFour.totalInterest)}
           </p>
-          <p className="text-sm text-neutral-500">True total cost: {fmtMoney(eightyFour.trueTotalCost)}</p>
+          <p className="text-sm text-neutral-500">{t.trueTotalCost} {fmtMoney(eightyFour.trueTotalCost)}</p>
         </div>
       </div>
 
       <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-400">
-        Stretching this loan from 72 to 84 months lowers the payment by{" "}
-        <strong className="text-neutral-800 dark:text-neutral-200">
-          {fmtMoney(seventyTwo.monthlyPayment - eightyFour.monthlyPayment)}/mo
-        </strong>{" "}
-        but costs{" "}
-        <strong className="text-neutral-800 dark:text-neutral-200">
-          {fmtMoney(eightyFour.totalInterest - seventyTwo.totalInterest)}
-        </strong>{" "}
-        more in total interest over the life of the loan.
+        {t.summary(
+          fmtMoney(seventyTwo.monthlyPayment - eightyFour.monthlyPayment),
+          fmtMoney(eightyFour.totalInterest - seventyTwo.totalInterest),
+        )}
       </p>
 
       <div className="mt-6 overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-neutral-200 text-left text-neutral-500 dark:border-neutral-800">
-              <th className="py-1 pr-4 font-medium">Term</th>
-              <th className="py-1 pr-4 font-medium">Monthly</th>
-              <th className="py-1 pr-4 font-medium">Total interest</th>
-              <th className="py-1 font-medium">True total cost</th>
+              <th className="py-1 pr-4 font-medium">{t.term}</th>
+              <th className="py-1 pr-4 font-medium">{t.monthly}</th>
+              <th className="py-1 pr-4 font-medium">{t.totalInterest.replace(":", "")}</th>
+              <th className="py-1 font-medium">{t.trueTotalCost.replace(":", "")}</th>
             </tr>
           </thead>
           <tbody>
@@ -129,7 +163,7 @@ export default function SeventyTwoVsEightyFourCalculator() {
                     : "text-neutral-600 dark:text-neutral-400"
                 }`}
               >
-                <td className="py-1.5 pr-4">{row.termMonths} mo</td>
+                <td className="py-1.5 pr-4">{row.termMonths} {t.moSuffix}</td>
                 <td className="py-1.5 pr-4">{fmtMoney(row.monthlyPayment)}</td>
                 <td className="py-1.5 pr-4">{fmtMoney(row.totalInterest)}</td>
                 <td className="py-1.5">{fmtMoney(row.trueTotalCost)}</td>

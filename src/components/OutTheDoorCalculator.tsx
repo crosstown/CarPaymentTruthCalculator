@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { calculateOutTheDoorPrice } from "@/lib/carLoan/outTheDoorPrice";
+import type { Locale } from "./Calculator";
 
 const fmtMoney = (n: number) =>
   n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
@@ -16,7 +17,41 @@ const DEFAULTS = {
   otherFees: 100,
 };
 
-export default function OutTheDoorCalculator() {
+const STRINGS = {
+  en: {
+    vehiclePrice: "Vehicle price",
+    tradeIn: "Trade-in value",
+    rebate: "Rebate / incentive",
+    salesTax: "Sales tax rate",
+    salesTaxHint: "your combined state + local rate",
+    docFee: "Doc fee",
+    registration: "Registration",
+    otherFees: "Other fees",
+    otherFeesHint: "title, plate transfer, etc.",
+    taxableAmount: "Taxable amount",
+    salesTaxLabel: "Sales tax",
+    fees: "Fees",
+    outTheDoorPrice: "Out-the-door price",
+  },
+  es: {
+    vehiclePrice: "Precio del vehículo",
+    tradeIn: "Valor del auto a cambio",
+    rebate: "Descuento / incentivo",
+    salesTax: "Tasa de impuesto sobre venta",
+    salesTaxHint: "tu tasa combinada estatal + local",
+    docFee: "Cargo de trámites",
+    registration: "Registro",
+    otherFees: "Otros cargos",
+    otherFeesHint: "título, transferencia de placas, etc.",
+    taxableAmount: "Monto gravable",
+    salesTaxLabel: "Impuesto sobre venta",
+    fees: "Cargos",
+    outTheDoorPrice: "Precio total (\"out-the-door\")",
+  },
+} as const;
+
+export default function OutTheDoorCalculator({ locale = "en" }: { locale?: Locale }) {
+  const t = STRINGS[locale];
   const [vehiclePrice, setVehiclePrice] = useState(DEFAULTS.vehiclePrice);
   const [tradeInValue, setTradeInValue] = useState(DEFAULTS.tradeInValue);
   const [rebate, setRebate] = useState(DEFAULTS.rebate);
@@ -66,32 +101,32 @@ export default function OutTheDoorCalculator() {
   return (
     <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {field("Vehicle price", vehiclePrice, setVehiclePrice, "$")}
-        {field("Trade-in value", tradeInValue, setTradeInValue, "$")}
-        {field("Rebate / incentive", rebate, setRebate, "$")}
-        {field("Sales tax rate", salesTaxPercent, setSalesTaxPercent, undefined, "%", "your combined state + local rate")}
-        {field("Doc fee", docFee, setDocFee, "$")}
-        {field("Registration", registrationFee, setRegistrationFee, "$")}
-        {field("Other fees", otherFees, setOtherFees, "$", undefined, "title, plate transfer, etc.")}
+        {field(t.vehiclePrice, vehiclePrice, setVehiclePrice, "$")}
+        {field(t.tradeIn, tradeInValue, setTradeInValue, "$")}
+        {field(t.rebate, rebate, setRebate, "$")}
+        {field(t.salesTax, salesTaxPercent, setSalesTaxPercent, undefined, "%", t.salesTaxHint)}
+        {field(t.docFee, docFee, setDocFee, "$")}
+        {field(t.registration, registrationFee, setRegistrationFee, "$")}
+        {field(t.otherFees, otherFees, setOtherFees, "$", undefined, t.otherFeesHint)}
       </div>
 
       <div className="mt-6 space-y-1 border-t border-neutral-200 pt-4 text-sm text-neutral-600 dark:border-neutral-800 dark:text-neutral-400">
         <div className="flex justify-between">
-          <span>Taxable amount</span>
+          <span>{t.taxableAmount}</span>
           <span>{fmtMoney(result.taxableAmount)}</span>
         </div>
         <div className="flex justify-between">
-          <span>Sales tax</span>
+          <span>{t.salesTaxLabel}</span>
           <span>{fmtMoney(result.salesTax)}</span>
         </div>
         <div className="flex justify-between">
-          <span>Fees</span>
+          <span>{t.fees}</span>
           <span>{fmtMoney(result.totalFees)}</span>
         </div>
       </div>
 
       <div className="mt-4 rounded-md bg-neutral-100 p-4 dark:bg-neutral-900">
-        <p className="text-sm font-medium text-neutral-500">Out-the-door price</p>
+        <p className="text-sm font-medium text-neutral-500">{t.outTheDoorPrice}</p>
         <p className="mt-1 text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
           {fmtMoney(result.outTheDoorPrice)}
         </p>

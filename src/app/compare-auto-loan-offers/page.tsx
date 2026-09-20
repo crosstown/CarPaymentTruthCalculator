@@ -6,7 +6,13 @@ export const metadata: Metadata = {
   title: "Compare Auto Loan Offers | Dealer vs Credit Union vs Bank Calculator",
   description:
     "Compare 2-3 auto loan offers side by side -- dealer financing, credit union, bank pre-approval -- by monthly payment, total interest, and true total cost.",
-  alternates: { canonical: "/compare-auto-loan-offers" },
+  alternates: {
+    canonical: "/compare-auto-loan-offers",
+    languages: {
+      "en-US": "https://carpaymenttruth.com/compare-auto-loan-offers",
+      es: "https://carpaymenttruth.com/es/compare-auto-loan-offers",
+    },
+  },
 };
 
 const BREADCRUMB_JSON_LD = {

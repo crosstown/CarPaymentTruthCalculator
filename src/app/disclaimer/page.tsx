@@ -5,7 +5,13 @@ export const metadata: Metadata = {
   title: "Disclaimer — Car Payment Truth Calculator",
   description:
     "This calculator is for educational estimates only -- it is not financial, legal, tax, or lending advice.",
-  alternates: { canonical: "/disclaimer" },
+  alternates: {
+    canonical: "/disclaimer",
+    languages: {
+      "en-US": "https://carpaymenttruth.com/disclaimer",
+      es: "https://carpaymenttruth.com/es/disclaimer",
+    },
+  },
 };
 
 export default function Disclaimer() {

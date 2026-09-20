@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Car Payment Truth Calculator",
-  description: "How carpaymenttruth.com handles your data and uses advertising cookies.",
+  title: "Política de Privacidad — Calculadora de la Verdad del Pago del Auto",
+  description: "Cómo carpaymenttruth.com maneja tus datos y usa cookies publicitarias.",
   alternates: {
-    canonical: "/privacy",
+    canonical: "/es/privacy",
     languages: {
       "en-US": "https://carpaymenttruth.com/privacy",
       es: "https://carpaymenttruth.com/es/privacy",
@@ -13,51 +13,54 @@ export const metadata: Metadata = {
   },
 };
 
-export default function PrivacyPolicy() {
+export default function PrivacyPolicyEs() {
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-10">
-      <Link href="/" className="text-sm text-neutral-500 hover:underline">
-        ← Back to calculator
+      <Link href="/es" className="text-sm text-neutral-500 hover:underline">
+        ← Volver a la calculadora
       </Link>
-      <h1 className="mt-4 text-2xl font-semibold tracking-tight">Privacy Policy</h1>
-      <p className="mt-1 text-sm text-neutral-500">Last updated: September 1, 2026</p>
+      <h1 className="mt-4 text-2xl font-semibold tracking-tight">Política de Privacidad</h1>
+      <p className="mt-1 text-sm text-neutral-500">Última actualización: 1 de septiembre de 2026</p>
 
       <div className="mt-8 space-y-6 text-sm leading-6 text-neutral-700 dark:text-neutral-300">
         <section>
           <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            Overview
+            Resumen
           </h2>
           <p className="mt-2">
-            Car Payment Truth Calculator (carpaymenttruth.com) is a free tool
-            for estimating the real cost of a car loan. This policy explains
-            what happens with your data when you use it.
+            Calculadora de la Verdad del Pago del Auto (carpaymenttruth.com)
+            es una herramienta gratuita para estimar el costo real de un
+            préstamo de auto. Esta política explica qué pasa con tus datos
+            cuando la usas.
           </p>
         </section>
 
         <section>
           <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            The calculator itself doesn&apos;t collect your data
+            La calculadora en sí no recopila tus datos
           </h2>
           <p className="mt-2">
-            There are no accounts, no sign-up, and no server behind the
-            calculator. The price, down payment, rate, and other numbers you
-            enter are processed entirely in your own browser to compute the
-            results shown on screen. That information is never sent to us,
-            stored by us, or seen by us in any form.
+            No hay cuentas, no hay registro, y no hay servidor detrás de la
+            calculadora. El precio, enganche, tasa y otros números que
+            ingresas se procesan completamente en tu propio navegador para
+            calcular los resultados que ves en pantalla. Esa información
+            nunca se nos envía, ni la almacenamos, ni la vemos de ninguna
+            forma.
           </p>
         </section>
 
         <section>
           <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            Advertising and cookies (Google AdSense)
+            Publicidad y cookies (Google AdSense)
           </h2>
           <p className="mt-2">
-            This site shows ads through Google AdSense. Google and its
-            advertising partners may use cookies, device identifiers, or
-            similar technologies to serve ads based on your visits to this
-            and other websites, and to measure ad performance. We don&apos;t
-            control this data collection directly — it&apos;s governed by
-            Google&apos;s own policies:
+            Este sitio muestra anuncios a través de Google AdSense. Google y
+            sus socios publicitarios pueden usar cookies, identificadores de
+            dispositivo, o tecnologías similares para mostrar anuncios
+            basados en tus visitas a este y otros sitios web, y para medir
+            el desempeño de los anuncios. No controlamos esta recopilación
+            de datos directamente -- se rige por las propias políticas de
+            Google:
           </p>
           <ul className="mt-2 list-inside list-disc space-y-1">
             <li>
@@ -67,7 +70,7 @@ export default function PrivacyPolicy() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                How Google uses information from sites that use its services
+                Cómo usa Google la información de los sitios que usan sus servicios
               </a>
             </li>
             <li>
@@ -77,7 +80,7 @@ export default function PrivacyPolicy() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Google Privacy Policy
+                Política de Privacidad de Google
               </a>
             </li>
           </ul>
@@ -85,38 +88,39 @@ export default function PrivacyPolicy() {
 
         <section>
           <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            If you&apos;re in the EEA, UK, or Switzerland
+            Si estás en el EEE, el Reino Unido, o Suiza
           </h2>
           <p className="mt-2">
-            Visitors from the European Economic Area, the UK, and Switzerland
-            are shown a consent banner before any advertising cookies are
-            set, letting you consent, decline, or manage detailed
-            preferences. You can change your choice at any time by clearing
-            your browser&apos;s cookies for this site, which will show the
-            banner again on your next visit.
+            A los visitantes del Espacio Económico Europeo, el Reino Unido y
+            Suiza se les muestra un aviso de consentimiento antes de que se
+            activen cookies publicitarias, para que puedas aceptar,
+            rechazar, o administrar preferencias detalladas. Puedes cambiar
+            tu elección en cualquier momento borrando las cookies de tu
+            navegador para este sitio, lo que mostrará el aviso de nuevo en
+            tu próxima visita.
           </p>
         </section>
 
         <section>
           <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            Your choices
+            Tus opciones
           </h2>
           <ul className="mt-2 list-inside list-disc space-y-1">
             <li>
-              Opt out of personalized advertising from Google at{" "}
+              Desactiva la publicidad personalizada de Google en{" "}
               <a
                 href="https://adssettings.google.com"
                 className="text-blue-600 underline dark:text-blue-400"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Google Ads Settings
+                Configuración de Anuncios de Google
               </a>
               .
             </li>
             <li>
-              Opt out of many third-party ad networks&apos; personalized
-              advertising at{" "}
+              Desactiva la publicidad personalizada de muchas redes
+              publicitarias externas en{" "}
               <a
                 href="https://optout.aboutads.info"
                 className="text-blue-600 underline dark:text-blue-400"
@@ -128,39 +132,39 @@ export default function PrivacyPolicy() {
               .
             </li>
             <li>
-              Block or clear cookies at any time through your browser&apos;s
-              own settings.
+              Bloquea o borra cookies en cualquier momento a través de la
+              configuración de tu propio navegador.
             </li>
           </ul>
         </section>
 
         <section>
           <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            Children&apos;s privacy
+            Privacidad de menores
           </h2>
           <p className="mt-2">
-            This site is not directed at children under 13, and we do not
-            knowingly collect personal information from children.
+            Este sitio no está dirigido a menores de 13 años, y no
+            recopilamos a sabiendas información personal de menores.
           </p>
         </section>
 
         <section>
           <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            Changes to this policy
+            Cambios a esta política
           </h2>
           <p className="mt-2">
-            We may update this policy from time to time. Changes will be
-            posted on this page with an updated &quot;Last updated&quot;
-            date.
+            Podemos actualizar esta política de vez en cuando. Los cambios
+            se publicarán en esta página con una fecha de &quot;última
+            actualización&quot; renovada.
           </p>
         </section>
 
         <section>
           <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            Contact
+            Contacto
           </h2>
           <p className="mt-2">
-            Questions about this policy? Email{" "}
+            ¿Preguntas sobre esta política? Escribe a{" "}
             <a
               href="mailto:royalplanet2009@gmail.com"
               className="text-blue-600 underline dark:text-blue-400"

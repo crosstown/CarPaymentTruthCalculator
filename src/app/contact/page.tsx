@@ -4,7 +4,13 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Contact — Car Payment Truth Calculator",
   description: "Get in touch about the Car Payment Truth Calculator.",
-  alternates: { canonical: "/contact" },
+  alternates: {
+    canonical: "/contact",
+    languages: {
+      "en-US": "https://carpaymenttruth.com/contact",
+      es: "https://carpaymenttruth.com/es/contact",
+    },
+  },
 };
 
 export default function Contact() {

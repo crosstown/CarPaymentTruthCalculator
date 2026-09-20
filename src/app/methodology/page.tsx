@@ -5,7 +5,13 @@ export const metadata: Metadata = {
   title: "Methodology — Car Payment Truth Calculator",
   description:
     "How the Car Payment Truth Calculator computes your monthly payment and true total cost -- the formula, assumptions, and what it doesn't model.",
-  alternates: { canonical: "/methodology" },
+  alternates: {
+    canonical: "/methodology",
+    languages: {
+      "en-US": "https://carpaymenttruth.com/methodology",
+      es: "https://carpaymenttruth.com/es/methodology",
+    },
+  },
 };
 
 export default function Methodology() {
@@ -87,10 +93,21 @@ export default function Methodology() {
             <li>Variable-rate or step-rate loans (APR is assumed fixed for the full term)</li>
             <li>Balloon payments</li>
             <li>Leases</li>
-            <li>Dealer add-ons (extended warranty, GAP, paint protection, etc.) beyond the flat &quot;fees&quot; field</li>
-            <li>Negative equity carried over from a prior loan</li>
+            <li>
+              Dealer add-ons (extended warranty, GAP, paint protection, etc.) beyond the flat
+              &quot;fees&quot; field -- see the{" "}
+              <Link href="/dealer-add-on-cost-calculator" className="text-blue-600 underline dark:text-blue-400">
+                dealer add-on cost calculator
+              </Link>{" "}
+              for that specifically
+            </li>
             <li>Lender-specific approval, credit-tier pricing, or promotional rates</li>
           </ul>
+          <p className="mt-2 text-xs text-neutral-500">
+            Negative equity carried over from a trade-in loan (the &quot;still owed on
+            trade-in&quot; field) IS modeled -- it&apos;s rolled into the amount financed
+            per the trade-in handling above.
+          </p>
         </section>
 
         <section>

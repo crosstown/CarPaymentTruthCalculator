@@ -2,21 +2,54 @@
 
 import { useMemo, useState } from "react";
 import { compareLoanOffers, cheapestOfferIndex, type LoanOffer } from "@/lib/carLoan/compareOffers";
+import type { Locale } from "./Calculator";
 
 const fmtMoney = (n: number) =>
   n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
 
 const DEFAULT_AMOUNT_FINANCED = 32000;
 
-const DEFAULT_OFFERS: LoanOffer[] = [
-  { label: "Dealer financing", aprPercent: 8.9, termMonths: 72, fees: 0 },
-  { label: "Credit union", aprPercent: 6.4, termMonths: 60, fees: 0 },
-  { label: "Bank pre-approval", aprPercent: 7.2, termMonths: 84, fees: 0 },
-];
+const STRINGS = {
+  en: {
+    amountFinanced: "Amount to finance",
+    amountFinancedHint: "same for every offer -- same car, same loan amount, different lenders",
+    apr: "APR",
+    term: "Term",
+    feesAtSigning: "Fees at signing",
+    perMo: "/mo",
+    moSuffix: "mo",
+    interest: "Interest:",
+    totalCost: "Total cost:",
+    lowestCost: "Lowest total cost",
+    defaultOffers: [
+      { label: "Dealer financing", aprPercent: 8.9, termMonths: 72, fees: 0 },
+      { label: "Credit union", aprPercent: 6.4, termMonths: 60, fees: 0 },
+      { label: "Bank pre-approval", aprPercent: 7.2, termMonths: 84, fees: 0 },
+    ] as LoanOffer[],
+  },
+  es: {
+    amountFinanced: "Monto a financiar",
+    amountFinancedHint: "igual para cada oferta -- mismo auto, mismo monto de préstamo, diferentes prestamistas",
+    apr: "APR",
+    term: "Plazo",
+    feesAtSigning: "Cargos al firmar",
+    perMo: "/mes",
+    moSuffix: "meses",
+    interest: "Interés:",
+    totalCost: "Costo total:",
+    lowestCost: "Menor costo total",
+    defaultOffers: [
+      { label: "Financiamiento del concesionario", aprPercent: 8.9, termMonths: 72, fees: 0 },
+      { label: "Cooperativa de crédito", aprPercent: 6.4, termMonths: 60, fees: 0 },
+      { label: "Preaprobación bancaria", aprPercent: 7.2, termMonths: 84, fees: 0 },
+    ] as LoanOffer[],
+  },
+} as const;
 
-export default function CompareOffersCalculator() {
+export default function CompareOffersCalculator({ locale = "en" }: { locale?: Locale }) {
+  const t = STRINGS[locale];
   const [amountFinanced, setAmountFinanced] = useState(DEFAULT_AMOUNT_FINANCED);
-  const [offers, setOffers] = useState<LoanOffer[]>(DEFAULT_OFFERS);
+  const [offers, setOffers] = useState<LoanOffer[]>([...t.defaultOffers]);
 
   const results = useMemo(() => compareLoanOffers(amountFinanced, offers), [amountFinanced, offers]);
   const winnerIndex = useMemo(() => cheapestOfferIndex(results), [results]);
@@ -28,10 +61,8 @@ export default function CompareOffersCalculator() {
   return (
     <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
       <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
-        Amount to finance
-        <span className="block text-xs font-normal text-neutral-400">
-          same for every offer -- same car, same loan amount, different lenders
-        </span>
+        {t.amountFinanced}
+        <span className="block text-xs font-normal text-neutral-400">{t.amountFinancedHint}</span>
         <div className="mt-1 flex items-center gap-1">
           <span className="text-neutral-400">$</span>
           <input
@@ -61,7 +92,7 @@ export default function CompareOffersCalculator() {
             />
 
             <label className="mt-3 block text-xs font-medium text-neutral-500">
-              APR
+              {t.apr}
               <div className="mt-1 flex items-center gap-1">
                 <input
                   type="number"
@@ -75,7 +106,7 @@ export default function CompareOffersCalculator() {
             </label>
 
             <label className="mt-2 block text-xs font-medium text-neutral-500">
-              Term
+              {t.term}
               <div className="mt-1 flex items-center gap-1">
                 <input
                   type="number"
@@ -83,12 +114,12 @@ export default function CompareOffersCalculator() {
                   onChange={(e) => updateOffer(i, { termMonths: Number(e.target.value) || 0 })}
                   className="w-full rounded-md border border-neutral-300 bg-white px-2 py-1 text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
                 />
-                <span className="text-neutral-400">mo</span>
+                <span className="text-neutral-400">{t.moSuffix}</span>
               </div>
             </label>
 
             <label className="mt-2 block text-xs font-medium text-neutral-500">
-              Fees at signing
+              {t.feesAtSigning}
               <div className="mt-1 flex items-center gap-1">
                 <span className="text-neutral-400">$</span>
                 <input
@@ -102,17 +133,17 @@ export default function CompareOffersCalculator() {
 
             <div className="mt-3 border-t border-neutral-200 pt-2 text-sm dark:border-neutral-800">
               <p className="font-semibold text-neutral-900 dark:text-neutral-100">
-                {fmtMoney(results[i]?.monthlyPayment ?? 0)}/mo
+                {fmtMoney(results[i]?.monthlyPayment ?? 0)}{t.perMo}
               </p>
               <p className="mt-0.5 text-xs text-neutral-500">
-                Interest: {fmtMoney(results[i]?.totalInterest ?? 0)}
+                {t.interest} {fmtMoney(results[i]?.totalInterest ?? 0)}
               </p>
               <p className="text-xs text-neutral-500">
-                Total cost: {fmtMoney(results[i]?.totalCost ?? 0)}
+                {t.totalCost} {fmtMoney(results[i]?.totalCost ?? 0)}
               </p>
               {i === winnerIndex && (
                 <p className="mt-1 text-xs font-medium text-green-600 dark:text-green-500">
-                  Lowest total cost
+                  {t.lowestCost}
                 </p>
               )}
             </div>

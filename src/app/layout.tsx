@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
-import VisitorCounter from "@/components/VisitorCounter";
+import Footer from "@/components/Footer";
+import LanguageToggle from "@/components/LanguageToggle";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -58,44 +58,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="min-h-full flex flex-col">
+        <LanguageToggle />
         <div className="flex-1">{children}</div>
-        <footer className="border-t border-neutral-200 py-6 text-center text-xs text-neutral-500 dark:border-neutral-800">
-          <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-            <Link href="/72-vs-84-month-car-loan" className="hover:underline">
-              72 vs 84 Month Loan
-            </Link>
-            <Link href="/out-the-door-price-calculator" className="hover:underline">
-              Out-the-Door Price
-            </Link>
-            <Link href="/dealer-add-on-cost-calculator" className="hover:underline">
-              Dealer Add-On Cost
-            </Link>
-            <Link href="/compare-auto-loan-offers" className="hover:underline">
-              Compare Loan Offers
-            </Link>
-            <Link href="/auto-refinance-savings-calculator" className="hover:underline">
-              Refinance Savings
-            </Link>
-          </nav>
-          <nav className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-            <Link href="/about" className="hover:underline">
-              About
-            </Link>
-            <Link href="/methodology" className="hover:underline">
-              Methodology
-            </Link>
-            <Link href="/contact" className="hover:underline">
-              Contact
-            </Link>
-            <Link href="/disclaimer" className="hover:underline">
-              Disclaimer
-            </Link>
-            <Link href="/privacy" className="hover:underline">
-              Privacy Policy
-            </Link>
-          </nav>
-          <VisitorCounter />
-        </footer>
+        <Footer />
       </body>
     </html>
   );
