@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function CarPaymentExplainer() {
   return (
     <section className="mx-auto w-full max-w-2xl px-4 pb-16 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
@@ -104,6 +106,42 @@ export default function CarPaymentExplainer() {
           </p>
         </div>
       </div>
+
+      <h2 className="mt-8 text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+        More tools
+      </h2>
+      <ul className="mt-3 list-inside list-disc space-y-1.5">
+        <li>
+          <Link href="/72-vs-84-month-car-loan" className="text-blue-600 underline dark:text-blue-400">
+            72 vs 84 month car loan
+          </Link>{" "}
+          — is the lower payment on a longer loan actually worth it?
+        </li>
+        <li>
+          <Link href="/out-the-door-price-calculator" className="text-blue-600 underline dark:text-blue-400">
+            Out-the-door price calculator
+          </Link>{" "}
+          — the real total before financing even enters the picture.
+        </li>
+        <li>
+          <Link href="/dealer-add-on-cost-calculator" className="text-blue-600 underline dark:text-blue-400">
+            Dealer add-on cost calculator
+          </Link>{" "}
+          — what an extended warranty or GAP coverage really costs, financed.
+        </li>
+        <li>
+          <Link href="/compare-auto-loan-offers" className="text-blue-600 underline dark:text-blue-400">
+            Compare auto loan offers
+          </Link>{" "}
+          — dealer vs. credit union vs. bank, by total cost, not just payment.
+        </li>
+        <li>
+          <Link href="/auto-refinance-savings-calculator" className="text-blue-600 underline dark:text-blue-400">
+            Auto refinance savings calculator
+          </Link>{" "}
+          — see if refinancing your current loan actually saves you money.
+        </li>
+      </ul>
     </section>
   );
 }
