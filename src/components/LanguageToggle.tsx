@@ -32,14 +32,14 @@ export default function LanguageToggle() {
         href={isSpanish ? otherHref : pathname}
         className={isSpanish ? "text-neutral-500 hover:underline" : "font-semibold text-neutral-900 dark:text-neutral-100"}
       >
-        English
+        🇺🇸 English
       </Link>
       <span className="text-neutral-300 dark:text-neutral-700">|</span>
       <Link
         href={isSpanish ? pathname : otherHref}
         className={isSpanish ? "font-semibold text-neutral-900 dark:text-neutral-100" : "text-neutral-500 hover:underline"}
       >
-        Español
+        🇲🇽 Español
       </Link>
     </div>
   );
