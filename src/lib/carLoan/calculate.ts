@@ -8,7 +8,7 @@ const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
  *   M = P * r(1+r)^n / ((1+r)^n - 1)
  * (the r=0 case, an interest-free/promo loan, is just P/n).
  */
-function amortizedPayment(principal: number, monthlyRate: number, termMonths: number): number {
+export function amortizedPayment(principal: number, monthlyRate: number, termMonths: number): number {
   if (principal <= 0) return 0;
   if (monthlyRate === 0) return principal / termMonths;
   const factor = Math.pow(1 + monthlyRate, termMonths);
