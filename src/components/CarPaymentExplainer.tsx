@@ -90,8 +90,21 @@ const STRINGS = {
 
 export default function CarPaymentExplainer({ locale = "en" }: { locale?: Locale }) {
   const t = STRINGS[locale];
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: t.faqs.map(({ q, a }) => ({
+      "@type": "Question",
+      name: q,
+      acceptedAnswer: { "@type": "Answer", text: a },
+    })),
+  };
   return (
     <section className="mx-auto w-full max-w-2xl px-4 pb-16 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <h2 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
         {t.heading}
       </h2>

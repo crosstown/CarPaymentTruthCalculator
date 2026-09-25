@@ -24,6 +24,27 @@ export const metadata: Metadata = {
   title: "Car Payment Truth Calculator",
   description:
     "See the real cost of a car loan -- total interest, fees, and how loan term length changes what you actually pay, not just the monthly payment. Free, no sign-up.",
+  // Site-wide fallback so every page at least gets a title/description card
+  // on social shares and link previews instead of a bare URL. Subpages that
+  // set their own `title`/`description` don't inherit those into this
+  // object automatically (Next doesn't cross-populate openGraph from the
+  // plain title/description fields), so shared links to subpages will show
+  // this generic card rather than their own -- a known gap, not fixed here.
+  openGraph: {
+    type: "website",
+    siteName: "Car Payment Truth Calculator",
+    title: "Car Payment Truth Calculator",
+    description:
+      "See the real cost of a car loan -- total interest, fees, and how loan term length changes what you actually pay, not just the monthly payment.",
+    url: "/",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Car Payment Truth Calculator",
+    description:
+      "See the real cost of a car loan -- total interest, fees, and how loan term length changes what you actually pay, not just the monthly payment.",
+  },
 };
 
 const structuredData = {
