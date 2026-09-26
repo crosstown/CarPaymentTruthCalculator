@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import Footer from "@/components/Footer";
 import LanguageToggle from "@/components/LanguageToggle";
 import "./globals.css";
+
+const GA_MEASUREMENT_ID = "G-0PZHK2RB1Q";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -79,6 +82,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="min-h-full flex flex-col">
+        {/* No literal-markup requirement like AdSense's tag above, so
+            next/script's optimized loading is fine here. */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="ga4-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
         <LanguageToggle />
         <div className="flex-1">{children}</div>
         <Footer />
