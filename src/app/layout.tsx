@@ -7,6 +7,15 @@ import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-0PZHK2RB1Q";
 
+// Reused by openGraph/twitter below so the description only needs to be
+// true (and match real search intent) in one place. Explicitly mentions
+// sales tax -- Search Console showed real recurring query volume for
+// "car/auto payment calculator with tax" that this description wasn't
+// matching, even though the calculator has a sales-tax input and the
+// WebApplication JSON-LD below already said "taxes."
+const SITE_DESCRIPTION =
+  "See the real cost of a car loan -- total interest, sales tax, fees, and how loan term length changes what you actually pay, not just the monthly payment. Free, no sign-up.";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -25,8 +34,7 @@ export const metadata: Metadata = {
   // www-vs-bare-domain reason this site also has.
   metadataBase: new URL("https://carpaymenttruth.com"),
   title: "Car Payment Truth Calculator",
-  description:
-    "See the real cost of a car loan -- total interest, fees, and how loan term length changes what you actually pay, not just the monthly payment. Free, no sign-up.",
+  description: SITE_DESCRIPTION,
   // Site-wide fallback so every page at least gets a title/description card
   // on social shares and link previews instead of a bare URL. Subpages that
   // set their own `title`/`description` don't inherit those into this
@@ -37,16 +45,14 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "Car Payment Truth Calculator",
     title: "Car Payment Truth Calculator",
-    description:
-      "See the real cost of a car loan -- total interest, fees, and how loan term length changes what you actually pay, not just the monthly payment.",
+    description: SITE_DESCRIPTION,
     url: "/",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
     title: "Car Payment Truth Calculator",
-    description:
-      "See the real cost of a car loan -- total interest, fees, and how loan term length changes what you actually pay, not just the monthly payment.",
+    description: SITE_DESCRIPTION,
   },
 };
 
